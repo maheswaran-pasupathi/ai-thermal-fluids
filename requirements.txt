@@ -8,6 +8,7 @@ matplotlib
 scikit-learn
 xgboost
 shap
+pyvista
 
 # Only needed if downloading a dataset via the Kaggle API yourself
 # (see the "Dataset" section of each project README for the exact dataset).
