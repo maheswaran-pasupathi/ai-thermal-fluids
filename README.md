@@ -2,17 +2,17 @@
 
 **CFD & Thermal Engineering × Scientific Machine Learning**
 
-Battery & Electro-Thermal Management • Conjugate Heat Transfer • Combustion • Vehicle Aerodynamics • Surrogate Modeling • Neural Operators
+Combustion • Conjugate Heat Transfer • Aerodynamics • Electronics & Battery Cooling • Reduced-Order Modeling • Neural Operators
 
-Built by [Maheswaran Pasupathi](https://www.linkedin.com/in/srimahes) — a senior CFD/thermal simulation engineer (8+ years; STAR-CCM+, CONVERGE, GT-SUITE, Python + Java-macro automation) who has driven 40–50% simulation-turnaround reduction through workflow automation, now applying AI/ML — surrogate modeling, reduced-order models, neural operators — to the same physics he works in daily: battery thermal runaway, electro-thermal busbar behavior, conjugate heat transfer, IC combustion, and vehicle aerodynamics.
+I'm Maheswaran, a CFD/thermal simulation engineer with 8+ years in commercial CFD tools (STAR-CCM+, CONVERGE, GT-SUITE) and Python/Java automation. Like a lot of CFD engineers right now, I've found the path into AI/ML genuinely hard to figure out — scattered tutorials, unclear where existing physics knowledge actually transfers, and very little written for someone coming from the CFD side rather than a pure data-science background.
 
-[Connect on LinkedIn](https://www.linkedin.com/in/srimahes) to discuss CFD, thermal engineering, or applying AI/ML to physics problems.
+This repo is me learning that transition in public, using only free and open tools — no commercial CFD or ML software required to follow along — so other CFD engineers and aspirants facing the same struggle have something concrete to learn from, question, or improve.
 
-This repo is a public, in-progress portfolio — projects are added and updated as they're built, not dumped in finished. Every project favors **physical interpretation over model-accuracy claims**, states clearly what stage it's at, and ships a runnable notebook rather than plots alone.
+This is a public, in-progress portfolio — projects are added and updated as they're built, not dumped in finished. Every project favors **physical interpretation over model-accuracy claims** and states clearly what stage it's at.
 
 ## Why this repo exists
 
-Most "AI for CFD" content online is either pure ML with no engineering grounding, or pure CFD with no ML. This portfolio is an attempt to bridge that gap from the CFD-engineer side — using real physics datasets, explaining the engineering meaning of every result, and being explicit about where a model's predictions can and can't be trusted.
+Most "AI for CFD" content online is either pure ML with no engineering grounding, or pure CFD with no ML — and very little of it is written from the perspective of someone actually stuck between the two. This portfolio tries to close that gap: real physics datasets, the engineering meaning explained for every result, and honesty about where a model's predictions can and can't be trusted.
 
 ## Portfolio
 
@@ -37,6 +37,10 @@ This repo is also meant as a shared learning space for CFD engineers — experie
 - See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to contribute a notebook, fix, or project card of your own.
 
 If you're a CFD/thermal engineer curious about ML, or an ML person curious about CFD, you're in the right place.
+
+## Let's collaborate
+
+If this resonates with you — you're a CFD engineer trying to figure out this same transition, or you've already found part of the way through — I'd like to hear from you. [Follow/connect on LinkedIn](https://www.linkedin.com/in/srimahes) and let's discuss: what's actually working, what resources helped, and how we as a CFD simulation community can give back to each other during this shift, without commercial tooling gatekeeping who gets to learn it.
 
 ## Datasets used (with attribution)
 
