@@ -2,9 +2,12 @@
 # Individual project READMEs note anything project-specific beyond this list.
 
 numpy
+pandas
 h5py
 matplotlib
 scikit-learn
+xgboost
+shap
 
 # Only needed if downloading a dataset via the Kaggle API yourself
 # (see the "Dataset" section of each project README for the exact dataset).
