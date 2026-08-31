@@ -2,6 +2,8 @@
 
 **Status: 🟡 Days 1-5 technical work done — physical-observation notes pending final write-up**
 
+![POD reconstruction of real in-cylinder PIV flow at increasing mode counts](results/day3_pod_reconstruction.png)
+
 ## Engineering problem
 In-cylinder flow structure (tumble/vortex behavior, cycle-to-cycle variability) measured via PIV directly affects mixture formation and combustion quality. Can an ML model reconstruct or predict flow fields from partial/available data cheaply enough to be useful alongside experiment/CFD?
 
@@ -33,11 +35,11 @@ Progression: data/physics understanding → cycle-to-cycle variability (EDA) →
 
 | Stage | Task | Key result | Figure |
 |---|---|---|---|
-| 1 | Data/physics exploration | Loaded real HDF5 structure, plotted U/V/magnitude/quiver/vorticity | `results/day1_piv_snapshot.png` |
-| 2 | Cycle-to-cycle variability (EDA) | Variability std: 5.36 (cad090) → 1.83 (cad270) | `results/day2_cycle_variability.png` |
-| 3 | POD/PCA | 265/1041 modes for 90% energy; 5 modes already show large-scale structure | `results/day3_pod_energy.png`, `results/day3_pod_reconstruction.png` |
-| 4 | Crank angle → POD coeffs regression | Global regression 77.4% error vs 78.5% naive baseline; local nearest-neighbor interpolation improves this to 55.2% | `results/day4_regression_result.png` |
-| 5 | Sparse/gappy-POD reconstruction | 46.3% error on masked points, large-scale structure recovered | `results/day5_sparse_reconstruction.png` |
+| 1 | Data/physics exploration | Loaded real HDF5 structure, plotted U/V/magnitude/quiver/vorticity | <img src="results/day1_piv_snapshot.png" width="160"> |
+| 2 | Cycle-to-cycle variability (EDA) | Variability std: 5.36 (cad090) → 1.83 (cad270) | <img src="results/day2_cycle_variability.png" width="160"> |
+| 3 | POD/PCA | 265/1041 modes for 90% energy; 5 modes already show large-scale structure | <img src="results/day3_pod_reconstruction.png" width="160"> |
+| 4 | Crank angle → POD coeffs regression | Global regression 77.4% error vs 78.5% naive baseline; local nearest-neighbor interpolation improves this to 55.2% | <img src="results/day4_regression_result.png" width="160"> |
+| 5 | Sparse/gappy-POD reconstruction | 46.3% error on masked points, large-scale structure recovered | <img src="results/day5_sparse_reconstruction.png" width="160"> |
 
 Full process, code and day-by-day learning notes: `day1_explore_piv.py` … `day5_sparse_reconstruction.py` and the matching `day*_learning_notes.md` files in this folder.
 
