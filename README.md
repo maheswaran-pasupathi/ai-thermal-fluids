@@ -2,11 +2,13 @@
 
 **CFD & Thermal Engineering × Scientific Machine Learning**
 
-Combustion • Conjugate Heat Transfer • Aerodynamics • Electronics & Battery Cooling • Reduced-Order Modeling • Neural Operators
+Battery & Electro-Thermal Management • Conjugate Heat Transfer • Combustion • Vehicle Aerodynamics • Surrogate Modeling • Neural Operators
 
-Built by [Maheswaran Pasupathi](https://www.linkedin.com/in/maheswaran-pasupathi) — a senior CFD simulation engineer (8+ years, powertrain/thermal, STAR-CCM+/CONVERGE/Python automation) learning to apply AI/ML to the physics problems he already knows deeply: in-cylinder flow, combustion, conjugate heat transfer, battery/electronics thermal management, and vehicle aerodynamics.
+Built by [Maheswaran Pasupathi](https://www.linkedin.com/in/srimahes) — a senior CFD/thermal simulation engineer (8+ years; STAR-CCM+, CONVERGE, GT-SUITE, Python + Java-macro automation) who has driven 40–50% simulation-turnaround reduction through workflow automation, now applying AI/ML — surrogate modeling, reduced-order models, neural operators — to the same physics he works in daily: battery thermal runaway, electro-thermal busbar behavior, conjugate heat transfer, IC combustion, and vehicle aerodynamics.
 
-This repo is a public, in-progress portfolio — projects are added and updated as they're built, not dumped in finished. Every project favors **physical interpretation over model accuracy claims**, and states clearly what stage it's at.
+[Connect on LinkedIn](https://www.linkedin.com/in/srimahes) to discuss CFD, thermal engineering, or applying AI/ML to physics problems.
+
+This repo is a public, in-progress portfolio — projects are added and updated as they're built, not dumped in finished. Every project favors **physical interpretation over model-accuracy claims**, states clearly what stage it's at, and ships a runnable notebook rather than plots alone.
 
 ## Why this repo exists
 
