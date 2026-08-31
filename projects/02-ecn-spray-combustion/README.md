@@ -1,6 +1,6 @@
 # Project 02 — Spray & Combustion ML
 
-**Status: 🔵 Stage 1 complete, Stages 2-3 in progress**
+**Status: 🔵 Stages 1-2 complete, Stage 3 in progress**
 
 ![Lift-off length vs. ambient temperature and other conditions](results/stage1_liftoff_vs_inputs.png)
 
@@ -35,6 +35,7 @@ Stage 1: clean the raw CSV (948 rows), select lift-off length as the target (bes
 | Stage | Task | Key result | Figure |
 |---|---|---|---|
 | 1 | Data cleaning + EDA | 336/948 clean rows; temperature is the strongest visible driver | <img src="results/stage1_liftoff_vs_inputs.png" width="160"> |
+| 2 | Regression: linear → RF → XGBoost | XGBoost best (R2=0.797, MAE=4.57mm); generalizes well to 6/7 orifice sizes held out entirely, fails on the 0.894mm orifice (R2=0.354) - a genuinely different, larger atomization regime | <img src="results/stage2_rig_generalization.png" width="160"> |
 
 Full code and my stage-by-stage notes: `stage1_data_cleaning.py` and the matching `stage*_learning_notes.md` files.
 
@@ -44,7 +45,7 @@ Full code and my stage-by-stage notes: `stage1_data_cleaning.py` and the matchin
 Not applicable yet - Stage 1 is data cleaning, no model trained. Will report per-stage from Stage 2 onward, same standard as Project 01.
 
 ## Genuine limitations
-This table pools many different studies/rigs rather than one controlled sweep, so injection pressure and orifice diameter are heavily clustered around common test conditions (e.g. ~150 MPa, 0.09/0.18mm). A regression model trained on this will generalize better within those clusters than outside them - I'll report that honestly in Stage 2 rather than only citing an aggregate error number.
+This table pools many different studies/rigs rather than one controlled sweep. Tested directly with a leave-one-orifice-size-out check (train on every other nozzle size, test only on the held-out one): the model generalizes well to 6 of 7 orifice sizes (R2 0.69-0.92) even completely unseen, but fails on the 0.894mm orifice (R2=0.354) - a real, physically-explainable weak point (that orifice is 5-10x larger than the rest of the dataset, a genuinely different atomization regime), not a vague "small dataset" excuse.
 
 ## How to reproduce
 1. `pip install -r ../../requirements.txt`
