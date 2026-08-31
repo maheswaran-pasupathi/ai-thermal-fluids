@@ -1,0 +1,11 @@
+# Core dependencies used across projects in this repo.
+# Individual project READMEs note anything project-specific beyond this list.
+
+numpy
+h5py
+matplotlib
+scikit-learn
+
+# Only needed if downloading a dataset via the Kaggle API yourself
+# (see the "Dataset" section of each project README for the exact dataset).
+kaggle

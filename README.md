@@ -42,6 +42,14 @@ If you're a CFD/thermal engineer curious about ML, or an ML person curious about
 
 If this resonates with you — you're a CFD engineer trying to figure out this same transition, or you've already found part of the way through — I'd like to hear from you. [Follow/connect on LinkedIn](https://www.linkedin.com/in/srimahes) and let's discuss: what's actually working, what resources helped, and how we as a CFD simulation community can give back to each other during this shift, without commercial tooling gatekeeping who gets to learn it.
 
+## Running this locally
+
+```
+pip install -r requirements.txt
+```
+
+Covers the core dependencies (numpy, h5py, matplotlib, scikit-learn) used across projects, plus `kaggle` if you want to download a dataset yourself via the Kaggle API. Each project README lists its exact dataset and any project-specific dependency beyond this list.
+
 ## Datasets used (with attribution)
 
 All datasets are public/research datasets, used with attribution to their original authors. Links and citations are in each project's own README. No proprietary or employer data is used anywhere in this repository.

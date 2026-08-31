@@ -75,6 +75,15 @@ I'm not tackling these in this Phase 1 subset - they're queued for when I move t
 
 This table itself is meant to answer a specific question: **not "can this predict well," but "which of these, if built out, would an engineer actually reach for."**
 
+## How to reproduce
+
+1. `pip install -r ../../requirements.txt` (from the repo root - covers numpy, h5py, matplotlib, scikit-learn, kaggle)
+2. Get a free Kaggle account and API token (kaggle.com → Settings → API → Create New Token), then download the dataset:
+   ```
+   kaggle datasets download samueljbaker/enginebench-lsp-small --unzip -p enginebench_data
+   ```
+3. Run `stage1_explore_piv.py` through `stage5_sparse_reconstruction.py` in order - each is written as cell blocks (`# %%`) so it also pastes directly into a Kaggle Notebook, in which case skip step 2 and just attach the dataset there instead.
+
 ## Source attribution
 Dataset and reference implementation: Samuel J. Baker, Michael A. Hobley, Isabel Scherl, Xiaohang Fang, Felix C. P. Leach, Martin H. Davy (Oxford TPSRG).
 
