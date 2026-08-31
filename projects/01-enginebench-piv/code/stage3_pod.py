@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 
-h5_paths = glob.glob("/kaggle/input/**/*.h5", recursive=True) or glob.glob("enginebench_data/*.h5")
+h5_paths = glob.glob("/kaggle/input/**/*.h5", recursive=True) or glob.glob("../data/*.h5")
 data_path = h5_paths[0]
 CAD = "cad090"
 
@@ -72,7 +72,7 @@ axes[1].set_title("Cumulative POD energy")
 axes[1].legend()
 
 plt.tight_layout()
-plt.savefig("stage3_pod_energy.png", dpi=150)
+plt.savefig("../results/stage3_pod_energy.png", dpi=150)
 plt.show()
 
 # %%
@@ -101,7 +101,7 @@ for i, k in enumerate(mode_counts):
 
 fig.suptitle(f"POD reconstruction of U, {CAD}, snapshot {snap_idx} - mode count vs fidelity")
 plt.tight_layout()
-plt.savefig("stage3_pod_reconstruction.png", dpi=150)
+plt.savefig("../results/stage3_pod_reconstruction.png", dpi=150)
 plt.show()
 
 # %%

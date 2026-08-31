@@ -26,12 +26,12 @@ import os
 import urllib.request
 
 BASE_URL = "https://ecn.sandia.gov"
-IMG_DIR = "oh_chemi_images"
+IMG_DIR = "../data/oh_chemi_images"
 os.makedirs(IMG_DIR, exist_ok=True)
 
 # %%
 # Find every row with BOTH a tabulated lift-off value AND a linked OH* image.
-raw = pd.read_csv("ecn_dieseldata.csv", skiprows=[1, 2], na_values=["-"])
+raw = pd.read_csv("../data/ecn_dieseldata.csv", skiprows=[1, 2], na_values=["-"])
 liftoff_raw = raw["liftoff"].dropna().astype(str)
 has_img = liftoff_raw[liftoff_raw.str.contains(r"\.png", case=False, na=False)]
 
@@ -148,7 +148,7 @@ axes[1].set_title(f"Example: tabulated={example['tabulated_mm']}mm")
 axes[1].legend()
 
 plt.tight_layout()
-plt.savefig("results/appendix_image_validation.png", dpi=150)
+plt.savefig("../results/appendix_image_validation.png", dpi=150)
 plt.show()
 
 # %%
@@ -175,7 +175,7 @@ for ax in axes.flat[n:]:
     ax.axis("off")
 fig.suptitle("All 19 samples - blue titles = raw Sandia frame (validated, r=0.95), orange = post-processed (extraction failed, shown honestly)")
 plt.tight_layout()
-plt.savefig("results/appendix_image_validation_grid.png", dpi=200)
+plt.savefig("../results/appendix_image_validation_grid.png", dpi=200)
 plt.show()
 
 # %%

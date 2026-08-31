@@ -12,7 +12,7 @@ import shap
 from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 
-clean = pd.read_csv("ecn_clean_liftoff.csv")
+clean = pd.read_csv("../data/ecn_clean_liftoff.csv")
 FEATURES = ["oxycon", "Ta", "dens", "injP", "orifDiam"]
 TARGET = "liftoff"
 
@@ -41,7 +41,7 @@ importance.sort_values().plot(kind="barh", ax=ax)
 ax.set_xlabel("Mean |SHAP value| (mm)")
 ax.set_title("XGBoost feature importance - lift-off length")
 plt.tight_layout()
-plt.savefig("results/stage3_shap_importance.png", dpi=150)
+plt.savefig("../results/stage3_shap_importance.png", dpi=150)
 plt.show()
 
 # %%
@@ -50,7 +50,7 @@ plt.show()
 fig = plt.figure(figsize=(8, 5))
 shap.summary_plot(shap_values, X_test, show=False)
 plt.tight_layout()
-plt.savefig("results/stage3_shap_summary.png", dpi=150)
+plt.savefig("../results/stage3_shap_summary.png", dpi=150)
 plt.show()
 
 # %%

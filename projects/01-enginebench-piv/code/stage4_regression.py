@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 import glob
 
-h5_paths = glob.glob("/kaggle/input/**/*.h5", recursive=True) or glob.glob("enginebench_data/*.h5")
+h5_paths = glob.glob("/kaggle/input/**/*.h5", recursive=True) or glob.glob("../data/*.h5")
 data_path = h5_paths[0]
 CAD_DEG = {"cad090": 90, "cad135": 135, "cad180": 180, "cad225": 225, "cad270": 270}
 HOLD_OUT = "cad180"  # middle value -> interpolation test, not extrapolation
@@ -117,7 +117,7 @@ fig.colorbar(im3, ax=axes[3])
 
 fig.suptitle(f"Stage 4: predicting {HOLD_OUT} - global regression vs local interpolation vs actual")
 plt.tight_layout()
-plt.savefig("stage4_regression_result.png", dpi=150)
+plt.savefig("../results/stage4_regression_result.png", dpi=150)
 plt.show()
 
 # %%

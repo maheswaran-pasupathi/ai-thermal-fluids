@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 
-h5_paths = glob.glob("/kaggle/input/**/*.h5", recursive=True) or glob.glob("enginebench_data/*.h5")
+h5_paths = glob.glob("/kaggle/input/**/*.h5", recursive=True) or glob.glob("../data/*.h5")
 data_path = h5_paths[0]
 print("Using:", data_path)
 
@@ -65,7 +65,7 @@ for i, cad in enumerate(crank_angles):
 
 fig.suptitle(f"Cycle-to-cycle variability across crank angles - {test_point} ({stats[crank_angles[0]]['n_cycles']} cycles each)")
 plt.tight_layout()
-plt.savefig("stage2_cycle_variability.png", dpi=150)
+plt.savefig("../results/stage2_cycle_variability.png", dpi=150)
 plt.show()
 
 # %%

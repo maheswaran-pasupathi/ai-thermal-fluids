@@ -41,7 +41,12 @@ Data/physics exploration → cycle-to-cycle variability (EDA) → POD/PCA → re
 | 4 | Crank angle → POD coeffs regression | Global regression 77.4% error vs 78.5% naive baseline; local interpolation improves to 55.2% | <img src="results/stage4_regression_result.png" width="160"> |
 | 5 | Sparse/gappy-POD reconstruction | 46.3% error on masked points, large-scale structure recovered | <img src="results/stage5_sparse_reconstruction.png" width="160"> |
 
-Full code and my stage-by-stage notes: `stage1_explore_piv.py` … `stage5_sparse_reconstruction.py` and the matching `stage*_learning_notes.md` files.
+Full code and my stage-by-stage notes: `code/stage1_explore_piv.py` … `code/stage5_sparse_reconstruction.py` and the matching `stage*_learning_notes.md` files.
+
+## Folder structure
+- `code/` - the 5 stage scripts
+- `data/` - not committed (see `data/README.md`) - the dataset is 390 MB, over GitHub's 100 MB limit and not worth the Git LFS bandwidth risk for a repo meant to be cloned by many people; download it yourself with the command below
+- `results/` - every figure referenced in this README
 
 ## Error analysis
 Reported per-stage since each answers a different question. Stage 4 is the clearest limitation: only 5 crank angles means a global regression can't learn the real crank-angle → flow relationship (77.4% error). Local interpolation between the two nearest angles did meaningfully better (55.2%), which told me the bottleneck was sampling density, not the method.
@@ -71,11 +76,11 @@ Queued for the full dataset in a Kaggle Notebook. Each item is a real industry c
 
 ## How to reproduce
 1. `pip install -r ../../requirements.txt`
-2. Get a free Kaggle account + API token (kaggle.com → Settings → API → Create New Token), then:
+2. Get a free Kaggle account + API token (kaggle.com → Settings → API → Create New Token), then download the data into `data/` (see `data/README.md`):
    ```
-   kaggle datasets download samueljbaker/enginebench-lsp-small --unzip -p enginebench_data
+   kaggle datasets download samueljbaker/enginebench-lsp-small --unzip -p data
    ```
-3. Run `stage1_explore_piv.py` through `stage5_sparse_reconstruction.py` in order (`# %%` cell blocks - also paste directly into a Kaggle Notebook, skipping step 2, if you attach the dataset there instead).
+3. From `code/`, run `stage1_explore_piv.py` through `stage5_sparse_reconstruction.py` in order (`# %%` cell blocks - also paste directly into a Kaggle Notebook, skipping step 2, if you attach the dataset there instead).
 
 ## Source attribution
 Dataset and reference implementation: Samuel J. Baker, Michael A. Hobley, Isabel Scherl, Xiaohang Fang, Felix C. P. Leach, Martin H. Davy (Oxford TPSRG).

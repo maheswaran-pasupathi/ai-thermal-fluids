@@ -1,11 +1,15 @@
-# Data (keep large/raw datasets out of git — use Kaggle/Zenodo links in project READMEs)
-data/
+# Large/binary scientific data formats - these are virtually always too big to
+# commit (GitHub blocks >100MB, and Git LFS's free bandwidth is easily blown by
+# one large file). Each project's data/README.md documents how to download.
 *.h5
 *.hdf5
-*.csv
 *.parquet
 *.npy
 *.npz
+
+# CSVs are NOT blanket-ignored - small tabular data (a few MB or less) gets
+# committed directly so the repo is reproducible without a download step. If a
+# future project's CSV is large, ignore that specific path, not all CSVs.
 
 # Python
 __pycache__/

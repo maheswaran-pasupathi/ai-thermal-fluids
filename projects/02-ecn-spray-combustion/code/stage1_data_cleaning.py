@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # The CSV has 2 metadata/units rows before the real data starts.
-raw = pd.read_csv("ecn_dieseldata.csv", skiprows=[1, 2], na_values=["-"])
+raw = pd.read_csv("../data/ecn_dieseldata.csv", skiprows=[1, 2], na_values=["-"])
 print("Raw shape:", raw.shape)
 
 # %%
@@ -59,7 +59,7 @@ clean = clean.dropna()
 print(f"\nFinal clean table for target='{TARGET}': {clean.shape}")
 print(clean.describe())
 
-clean.to_csv("ecn_clean_liftoff.csv", index=False)
+clean.to_csv("../data/ecn_clean_liftoff.csv", index=False)
 
 # %%
 # EDA: distribution of each input and the target, plus target vs. each input.
@@ -70,7 +70,7 @@ for ax, col in zip(axes.flat, cols):
     ax.hist(clean[col], bins=20, edgecolor="black")
     ax.set_title(f"{col} ({units[col]})")
 plt.tight_layout()
-plt.savefig("results/stage1_distributions.png", dpi=150)
+plt.savefig("../results/stage1_distributions.png", dpi=150)
 plt.show()
 
 # %%
@@ -81,7 +81,7 @@ for ax, col in zip(axes, CORE_INPUTS):
     ax.set_ylabel(f"{TARGET} (mm)")
 fig.suptitle(f"Lift-off length vs. each input condition ({len(clean)} clean rows)")
 plt.tight_layout()
-plt.savefig("results/stage1_liftoff_vs_inputs.png", dpi=150)
+plt.savefig("../results/stage1_liftoff_vs_inputs.png", dpi=150)
 plt.show()
 
 # %%

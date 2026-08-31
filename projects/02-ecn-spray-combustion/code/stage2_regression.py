@@ -13,7 +13,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from xgboost import XGBRegressor
 
-clean = pd.read_csv("ecn_clean_liftoff.csv")
+clean = pd.read_csv("../data/ecn_clean_liftoff.csv")
 FEATURES = ["oxycon", "Ta", "dens", "injP", "orifDiam"]
 TARGET = "liftoff"
 print(f"Dataset: {clean.shape}")
@@ -60,7 +60,7 @@ for ax, (name, r) in zip(axes, results.items()):
     ax.set_title(f"{name}\nMAE={r['mae']:.2f}mm, R2={r['r2']:.3f}")
     ax.legend(fontsize=8)
 plt.tight_layout()
-plt.savefig("results/stage2_model_comparison.png", dpi=150)
+plt.savefig("../results/stage2_model_comparison.png", dpi=150)
 plt.show()
 
 # %%
@@ -108,7 +108,7 @@ ax.set_xlabel("Held-out orifice diameter (mm)")
 ax.set_ylabel("R2 on that orifice size (trained on all others)")
 ax.set_title("XGBoost generalization to an unseen nozzle size, per rig condition")
 plt.tight_layout()
-plt.savefig("results/stage2_rig_generalization.png", dpi=150)
+plt.savefig("../results/stage2_rig_generalization.png", dpi=150)
 plt.show()
 
 # %%

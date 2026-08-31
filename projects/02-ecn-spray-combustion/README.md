@@ -39,9 +39,14 @@ Stage 1: clean the raw CSV (948 rows), select lift-off length as the target (bes
 | 2 | Regression: linear → RF → XGBoost | XGBoost best (R2=0.797, MAE=4.57mm); generalizes well to 6/7 orifice sizes held out entirely, fails on the 0.894mm orifice (R2=0.354) - a genuinely different, larger atomization regime | <img src="results/stage2_rig_generalization.png" width="160"> |
 | 3 | SHAP feature importance vs. physics | Ta and dens dominate importance; all 5 feature directions matched known combustion chemistry | <img src="results/stage3_shap_summary.png" width="160"> |
 
-Full code and my stage-by-stage notes: `stage1_data_cleaning.py` … `stage3_shap.py` and the matching `stage*_learning_notes.md` files.
+Full code and my stage-by-stage notes: `code/stage1_data_cleaning.py` … `code/stage3_shap.py` and the matching `stage*_learning_notes.md` files.
 
-**Appendix (exploratory, not a numbered stage):** I also tried validating the tabulated lift-off values against their source OH* chemiluminescence images directly, independent of the CSV. Real result (r=0.95 on 7 of 19 images) and a real open question I haven't resolved (my threshold wasn't the documented ECN measurement definition) - see `appendix_image_validation.py` and its notes.
+**Appendix (exploratory, not a numbered stage):** I also tried validating the tabulated lift-off values against their source OH* chemiluminescence images directly, independent of the CSV. Real result (r=0.95 on 7 of 19 images) and a real open question I haven't resolved (my threshold wasn't the documented ECN measurement definition) - see `code/appendix_image_validation.py` and its notes.
+
+## Folder structure
+- `code/` - the 3 stage scripts + the appendix
+- `data/` - `ecn_dieseldata.csv` (raw, 786 KB), `ecn_clean_liftoff.csv` (Stage 1's cleaned output), `oh_chemi_images/` (19 source images for the appendix) - all committed directly, small enough not to need a download step
+- `results/` - every figure referenced in this README
 
 ## Error analysis
 Linear MAE=7.63mm, RMSE=11.21mm, R2=0.550 vs. XGBoost MAE=4.57mm, RMSE=7.54mm, R2=0.797 on a random 75/25 split. That number alone overstates confidence though - the leave-one-orifice-out check (Genuine limitations below) shows the real error is condition-dependent: MAE ranges from 2.61mm to 9.25mm depending on which nozzle size is held out.
@@ -56,8 +61,8 @@ Checked directly rather than assumed: excluding that one orifice size from train
 
 ## How to reproduce
 1. `pip install -r ../../requirements.txt`
-2. Download the data directly, no account needed: `curl -o ecn_dieseldata.csv https://ecn.sandia.gov/databases/dieseldata.csv`
-3. Run `stage1_data_cleaning.py` → `stage2_regression.py` → `stage3_shap.py` in order (`# %%` cell blocks). Stage 1 produces `ecn_clean_liftoff.csv`, which Stages 2-3 read.
+2. The data is already in `data/` - no download needed. (It came from `curl -o ecn_dieseldata.csv https://ecn.sandia.gov/databases/dieseldata.csv`, no account required, if you want the raw source.)
+3. From `code/`, run `stage1_data_cleaning.py` → `stage2_regression.py` → `stage3_shap.py` in order (`# %%` cell blocks). Stage 1 regenerates `data/ecn_clean_liftoff.csv`, which Stages 2-3 read.
 
 ## Source attribution
 Data: Engine Combustion Network (ECN), Sandia National Laboratories, and the contributing research institutions whose experiments populate this table (attribution per-row via the table's `refs`/`fileBaseName` columns on the ECN site).

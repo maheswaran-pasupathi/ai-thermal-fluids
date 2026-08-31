@@ -18,7 +18,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 
-h5_paths = glob.glob("/kaggle/input/**/*.h5", recursive=True) or glob.glob("enginebench_data/*.h5")
+h5_paths = glob.glob("/kaggle/input/**/*.h5", recursive=True) or glob.glob("../data/*.h5")
 data_path = h5_paths[0]
 CAD = "cad090"
 TEST_SNAP_IDX = 1000  # held out from POD training basis
@@ -107,7 +107,7 @@ fig.colorbar(im3, ax=axes[3])
 
 fig.suptitle(f"Stage 5: sparse-to-full PIV reconstruction (gappy POD), {CAD}, snapshot {TEST_SNAP_IDX}")
 plt.tight_layout()
-plt.savefig("stage5_sparse_reconstruction.png", dpi=150)
+plt.savefig("../results/stage5_sparse_reconstruction.png", dpi=150)
 plt.show()
 
 # %%

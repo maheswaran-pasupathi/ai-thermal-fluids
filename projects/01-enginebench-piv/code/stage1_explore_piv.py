@@ -21,7 +21,7 @@ import glob
 
 # Kaggle mounts input datasets under /kaggle/input/<dataset-slug>/...
 # find the .h5 file automatically instead of hardcoding a path
-h5_paths = glob.glob("/kaggle/input/**/*.h5", recursive=True)
+h5_paths = glob.glob("/kaggle/input/**/*.h5", recursive=True) or glob.glob("../data/*.h5")
 print("Found files:", h5_paths)
 data_path = h5_paths[0]
 
@@ -101,7 +101,7 @@ axes[1, 2].axis("off")
 
 fig.suptitle(f"Test point: {first_tp} | Crank angle: {first_cad}")
 plt.tight_layout()
-plt.savefig("stage1_piv_snapshot.png", dpi=150)
+plt.savefig("../results/stage1_piv_snapshot.png", dpi=150)
 plt.show()
 
 # %%
@@ -119,7 +119,7 @@ with h5py.File(data_path, "r") as f:
         ax.set_title(cad)
     fig.suptitle(f"Velocity magnitude across crank angles - {first_tp}")
     plt.tight_layout()
-    plt.savefig("stage1_crank_angle_comparison.png", dpi=150)
+    plt.savefig("../results/stage1_crank_angle_comparison.png", dpi=150)
     plt.show()
 
 # %%
