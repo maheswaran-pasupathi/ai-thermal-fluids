@@ -1,7 +1,8 @@
 # Day 1 - EngineBench PIV: learning notes
 
-Dataset: EngineBench LSP Small (Kaggle)
-Test point / crank angle used: <fill in from the script output>
+Dataset: EngineBench LSP Small (`LSP_r1300_p40_small.h5`, downloaded via Kaggle API)
+Test point: r1300_p40 (1300 RPM, 40 kPa MAP) | Crank angles available: cad090, cad135, cad180, cad225, cad270 | 1041 cycles per crank angle
+Figures: `results/day1_piv_snapshot.png` (U/V/magnitude/quiver/vorticity at cad090), `results/day1_crank_angle_comparison.png` (magnitude across 4 crank angles)
 
 ## Physical observations (your own words, 3 minimum)
 
