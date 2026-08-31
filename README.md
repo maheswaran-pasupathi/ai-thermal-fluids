@@ -2,9 +2,9 @@
 
 **CFD & Thermal Engineering × Scientific Machine Learning**
 
-Combustion • Conjugate Heat Transfer • Aerodynamics • Electronics & Battery Cooling • Reduced-Order Modeling • Neural Operators
+Combustion • Conjugate Heat Transfer • Aerodynamics • Battery & Electronics Cooling • Surrogate Modeling • Physics-Informed ML • Digital Twins • Neural Operators
 
-I'm Maheswaran, a CFD/thermal simulation engineer with 8+ years in commercial CFD tools (STAR-CCM+, CONVERGE, GT-SUITE) and Python/Java automation. Like a lot of CFD engineers right now, I've found the path into AI/ML genuinely hard to figure out — scattered tutorials, unclear where existing physics knowledge actually transfers, and very little written for someone coming from the CFD side rather than a pure data-science background.
+I'm [Maheswaran Pasupathi](https://github.com/maheswaran-pasupathi), a CFD/thermal simulation engineer with 9 years in commercial CFD tools (STAR-CCM+, CONVERGE, GT-SUITE) and Python/Java automation, including workflows that cut simulation turnaround by 40–50%. Like a lot of CFD engineers right now, I've found the path into AI/ML genuinely hard to figure out — scattered tutorials, unclear where existing physics knowledge actually transfers, and very little written for someone coming from the CFD side rather than a pure data-science background.
 
 This repo is me learning that transition in public, using only free and open tools — no commercial CFD or ML software required to follow along — so other CFD engineers and aspirants facing the same struggle have something concrete to learn from, question, or improve.
 
