@@ -5,6 +5,12 @@
 ## Engineering problem
 In-cylinder flow structure (tumble/vortex behavior, cycle-to-cycle variability) measured via PIV directly affects mixture formation and combustion quality. Can an ML model reconstruct or predict flow fields from partial/available data cheaply enough to be useful alongside experiment/CFD?
 
+## Objective and outcomes
+
+**Objective:** show that reduced-order/ML techniques applied to real experimental in-cylinder PIV data can (1) compress high-dimensional turbulent flow into a tractable representation, (2) interpolate/predict flow state from sparse operating-condition data, and (3) reconstruct fields from incomplete measurements - the three capabilities that make ML actually useful in a CFD/test workflow, not just an accuracy demo.
+
+**Outcome for this Phase 1 subset:** a working, honest, real-data pipeline covering all three, with results reported including where they're weak (Stage 4) rather than only where they're strong. This is not a production-ready predictive model - the dataset is intentionally 1/80th the size of the full one. What it does demonstrate is the right *method* for each capability, validated well enough to know which parts would benefit most from scaling up. See "Phase 2" below for what that scale-up looks like and why each piece matters in a real CFD workflow, not just as a portfolio exercise.
+
 ## Physics baseline
 - PIV plane, crank-angle-resolved U/V velocity components
 - Velocity magnitude, vector/quiver structure, vorticity
@@ -25,7 +31,7 @@ Progression: data/physics understanding → cycle-to-cycle variability (EDA) →
 - **Crank-angle-only regression is weak, and data-starved rather than method-limited**: a global linear regression across all 4 training crank angles gives 77.4% relative error, barely beating a naive "reuse the nearest known crank angle" baseline (78.5%). Switching to local interpolation between just the two *nearest* known crank angles drops this to 55.2% - a real improvement that also shows the bottleneck is sparse sampling (5 points total), not the modeling approach. See "Genuine limitations" below.
 - **Sparse-to-full reconstruction (gappy POD) works reasonably for large-scale structure**: with 30% of spatial points masked, gap-point reconstruction error is 46.3%, and the recovered field visually preserves the dominant vortex/tumble pattern while losing fine turbulent detail.
 
-| Day | Task | Key result | Figure |
+| Stage | Task | Key result | Figure |
 |---|---|---|---|
 | 1 | Data/physics exploration | Loaded real HDF5 structure, plotted U/V/magnitude/quiver/vorticity | `results/day1_piv_snapshot.png` |
 | 2 | Cycle-to-cycle variability (EDA) | Variability std: 5.36 (cad090) → 1.83 (cad270) | `results/day2_cycle_variability.png` |
@@ -50,8 +56,21 @@ This Phase 1 project intentionally used the Kaggle "LSP Small" subset: **one ope
 
 **Open question for anyone reading this** (genuinely - not rhetorical): if you're working through AI/ML-for-CFD problems on a personal machine rather than a company cluster, how are you handling datasets in the tens-of-GB range? Cloud notebooks, a home GPU box, university compute, something else? This project will move to the full dataset in a Kaggle Notebook next - if you've solved this tradeoff differently, I'd like to hear about it in [Discussions](../../discussions).
 
-## Phase 2 backlog (not in scope yet)
-Multi-step crank-angle forecasting, ConvLSTM/temporal U-Net, physics-aware losses (divergence/vorticity/circulation), cycle-variability/anomaly detection, uncertainty quantification, sparse-sensor placement optimization, CFD-to-experiment domain transfer.
+## Phase 2 queue: full dataset, and why each piece matters in real CFD work
+
+Not in scope for this Phase 1 subset - queued for the full 31 GB EngineBench dataset, run in a Kaggle Notebook rather than locally (see "Genuine limitations" above). Each item below is a real capability used in industrial CFD/test programs, not just a harder ML exercise:
+
+| Backlog item | Why it matters in a real CFD/test workflow |
+|---|---|
+| Multi-step crank-angle forecasting (current state → future state) | Basis for real-time, control-oriented engine models - relevant to knock prediction and combustion control, not just offline analysis |
+| ConvLSTM / temporal U-Net surrogate | Replaces expensive transient CFD runs during design-space screening - the actual reason surrogate modeling exists in industry |
+| Physics-aware losses (divergence/vorticity/circulation) | A surrogate that violates conservation laws isn't trustworthy for engineering decisions - this is what separates a demo model from one an engineer would actually sign off on |
+| Cycle-variability / anomaly detection | Directly usable as a combustion-instability diagnostic in engine test cells, not just a research metric |
+| Uncertainty quantification | Any prediction feeding an engineering decision needs a confidence bound - a point estimate alone isn't enough to act on |
+| Sparse-sensor placement optimization | Answers "where should we actually put PIV/pressure sensors" - a real, direct cost lever on physical test programs |
+| CFD-to-experiment domain transfer | The sim-to-real gap is one of CFD's persistent open problems - ML-assisted correction against test data is an active industry direction, not a solved one |
+
+This table itself is meant to answer a specific question: **not "can this predict well," but "which of these, if built out, would an engineer actually reach for."**
 
 ## Source attribution
 Dataset and reference implementation: Samuel J. Baker, Michael A. Hobley, Isabel Scherl, Xiaohang Fang, Felix C. P. Leach, Martin H. Davy (Oxford TPSRG).
