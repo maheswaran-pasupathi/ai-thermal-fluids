@@ -12,13 +12,13 @@ This is a public, in-progress portfolio — projects are added and updated as th
 
 ## Why this repo exists
 
-Most "AI for CFD" content online is either pure ML with no engineering grounding, or pure CFD with no ML — and very little of it is written from the perspective of someone actually stuck between the two. This portfolio tries to close that gap: real physics datasets, the engineering meaning explained for every result, and honesty about where a model's predictions can and can't be trusted.
+Most "AI for CFD" content I've found online is either pure ML with no engineering grounding, or pure CFD with no ML — and very little of it is written from the perspective of someone actually stuck between the two. I'm trying to close that gap here: real physics datasets, the engineering meaning explained for every result, and honesty about where a model's predictions can and can't be trusted.
 
 ## Portfolio
 
 | # | Project | Physics | AI/ML Method | Status | Preview |
 |---|---|---|---|---|---|
-| 01 | [In-Cylinder Flow Reconstruction](projects/01-enginebench-piv/) | Engine PIV flow, tumble/vortex structure, cycle variability | POD/PCA → regression → reconstruction | 🟡 Results done, notes pending | <img src="projects/01-enginebench-piv/results/day3_pod_reconstruction.png" width="200"> |
+| 01 | [In-Cylinder Flow Reconstruction](projects/01-enginebench-piv/) | Engine PIV flow, tumble/vortex structure, cycle variability | POD/PCA → regression → reconstruction | 🟢 Complete | <img src="projects/01-enginebench-piv/results/stage3_pod_reconstruction.png" width="200"> |
 | 02 | [Spray & Combustion ML](projects/02-ecn-spray-combustion/) | Ignition delay, spray penetration, lift-off length | Random Forest / XGBoost + SHAP | ⚪ Planned | - |
 | 03 | [Data Center Cooling Surrogate](projects/03-ecoqube-datacenter-cooling/) | Thermal surrogate + cooling control/optimization | Regression + optimization | ⚪ Planned | - |
 | 04 | [Vehicle Aerodynamics AI](projects/04-drivaernet-aero/) | Drag coefficient prediction from geometry | XGBoost + SHAP explainability | ⚪ Planned | - |
@@ -26,11 +26,11 @@ Most "AI for CFD" content online is either pure ML with no engineering grounding
 | 06 | [Thermal Digital Twin (flagship)](projects/06-transient-cht-digital-twin/) | Transient conjugate heat transfer, battery/electronics cooling transfer | U-Net → FNO/DeepONet | ⚪ Planned | - |
 | 07 | [Scientific ML / Neural Operators](projects/07-cfdbench-neural-operator/) | Canonical CFD PDE solution fields | Fourier Neural Operator | ⚪ Planned | - |
 
-Each project card follows the same structure: **Engineering problem → Physics baseline → Dataset → Method → Result → Error analysis → Engineering conclusion**, with one visual result and full source attribution to the original dataset/paper.
+I follow the same structure for every project card: **Engineering problem → Physics baseline → Dataset → Method → Result → Error analysis → Engineering conclusion**, with one visual result and full source attribution to the original dataset/paper.
 
 ## Community
 
-This repo is also meant as a shared learning space for CFD engineers — experienced or just starting out — who want to pick up AI/ML without losing the physics grounding that makes CFD work trustworthy.
+I also want this repo to be a shared learning space for CFD engineers — experienced or just starting out — who want to pick up AI/ML without losing the physics grounding that makes CFD work trustworthy.
 
 - **Discussions** are open — ask questions, suggest datasets, share your own approach to any of the problems above, or point out where a result looks physically wrong.
 - **Issues** are open for dataset suggestions, method suggestions, or spotted errors.

@@ -1,6 +1,6 @@
-# Day 3 - EngineBench LSP Small: POD/PCA of the velocity field
+# Stage 3 - EngineBench LSP Small: POD/PCA of the velocity field
 #
-# Uses cad090 (highest cycle-to-cycle variability from Day 2) across all 1041
+# Uses cad090 (highest cycle-to-cycle variability from Stage 2) across all 1041
 # cycles. Builds a snapshot matrix of [u, v] fields, runs POD via SVD, plots
 # explained energy vs mode count, and reconstructs one snapshot with a few
 # different numbers of modes to see the reconstruction-fidelity tradeoff.
@@ -72,7 +72,7 @@ axes[1].set_title("Cumulative POD energy")
 axes[1].legend()
 
 plt.tight_layout()
-plt.savefig("day3_pod_energy.png", dpi=150)
+plt.savefig("stage3_pod_energy.png", dpi=150)
 plt.show()
 
 # %%
@@ -101,10 +101,10 @@ for i, k in enumerate(mode_counts):
 
 fig.suptitle(f"POD reconstruction of U, {CAD}, snapshot {snap_idx} - mode count vs fidelity")
 plt.tight_layout()
-plt.savefig("day3_pod_reconstruction.png", dpi=150)
+plt.savefig("stage3_pod_reconstruction.png", dpi=150)
 plt.show()
 
 # %%
-# Next: fill in day3_learning_notes.md - how many modes did it actually take to
+# Next: fill in stage3_learning_notes.md - how many modes did it actually take to
 # get a visually convincing reconstruction vs. the 90%/99% energy thresholds,
 # and what does that gap tell you about this flow's structure?

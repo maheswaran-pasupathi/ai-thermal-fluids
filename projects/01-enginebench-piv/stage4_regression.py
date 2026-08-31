@@ -1,4 +1,4 @@
-# Day 4 - EngineBench LSP Small: crank angle -> POD coefficients -> reconstructed
+# Stage 4 - EngineBench LSP Small: crank angle -> POD coefficients -> reconstructed
 # MEAN field, via leave-one-crank-angle-out regression.
 #
 # Honesty note: this small dataset only has 5 distinct crank angles (090-270),
@@ -54,7 +54,7 @@ coeffs = Ub[:, :K] * S[:K]  # (n_snapshots, K) POD coefficients per snapshot
 # %%
 # Train: crank angle (degrees) -> mean POD coefficients, using the 4 non-held-out
 # crank angles. Target = mean coefficient vector per crank angle (we're predicting
-# the MEAN field per condition, not individual-cycle variability - Day 2 showed
+# the MEAN field per condition, not individual-cycle variability - Stage 2 showed
 # that variability is real and not explainable from crank angle alone).
 train_mask = cad_labels != HOLD_OUT
 train_cads = np.array([CAD_DEG[c] for c in cad_labels[train_mask]]).reshape(-1, 1)
@@ -115,13 +115,13 @@ im3 = axes[3].pcolormesh(gridx, gridy, interp_u - actual_u, cmap="RdBu_r", shadi
 axes[3].set_title("Local interp error\n(pred - actual)")
 fig.colorbar(im3, ax=axes[3])
 
-fig.suptitle(f"Day 4: predicting {HOLD_OUT} - global regression vs local interpolation vs actual")
+fig.suptitle(f"Stage 4: predicting {HOLD_OUT} - global regression vs local interpolation vs actual")
 plt.tight_layout()
-plt.savefig("day4_regression_result.png", dpi=150)
+plt.savefig("stage4_regression_result.png", dpi=150)
 plt.show()
 
 # %%
-# Next: fill in day4_learning_notes.md - local interpolation beat both the global
+# Next: fill in stage4_learning_notes.md - local interpolation beat both the global
 # regression and the naive baseline. Why would nearest-neighbor interpolation beat
 # a "smarter" global regression here? What would change with the FULL EngineBench
 # dataset (more crank angles / operating points) instead of this 5-point subset?

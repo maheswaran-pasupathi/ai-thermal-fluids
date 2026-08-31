@@ -1,4 +1,4 @@
-# Day 1 - EngineBench LSP Small: explore structure, plot U/V/magnitude/vorticity
+# Stage 1 - EngineBench LSP Small: explore structure, plot U/V/magnitude/vorticity
 #
 # Run this in a Kaggle notebook with the "enginebench-lsp-small" dataset attached as input.
 # Reference tutorial from the dataset author: https://www.kaggle.com/code/samueljbaker/browsedata
@@ -101,12 +101,12 @@ axes[1, 2].axis("off")
 
 fig.suptitle(f"Test point: {first_tp} | Crank angle: {first_cad}")
 plt.tight_layout()
-plt.savefig("day1_piv_snapshot.png", dpi=150)
+plt.savefig("stage1_piv_snapshot.png", dpi=150)
 plt.show()
 
 # %%
 # Step 5: compare a few crank angles from the SAME test point to see flow evolution.
-# This feeds into Day 2 (cycle/crank-angle variability) - just a first look here.
+# This feeds into Stage 2 (cycle/crank-angle variability) - just a first look here.
 with h5py.File(data_path, "r") as f:
     sample_cads = crank_angles[:: max(1, len(crank_angles) // 4)][:4]
     fig, axes = plt.subplots(1, len(sample_cads), figsize=(4 * len(sample_cads), 4))
@@ -119,9 +119,9 @@ with h5py.File(data_path, "r") as f:
         ax.set_title(cad)
     fig.suptitle(f"Velocity magnitude across crank angles - {first_tp}")
     plt.tight_layout()
-    plt.savefig("day1_crank_angle_comparison.png", dpi=150)
+    plt.savefig("stage1_crank_angle_comparison.png", dpi=150)
     plt.show()
 
 # %%
-# Next: fill in projects/01-enginebench-piv/day1_learning_notes.md with your own
-# physical observations and ML/data-concept notes before calling Day 1 done.
+# Next: fill in projects/01-enginebench-piv/stage1_learning_notes.md with your own
+# physical observations and ML/data-concept notes before calling Stage 1 done.

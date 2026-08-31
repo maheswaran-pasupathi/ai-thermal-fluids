@@ -1,8 +1,8 @@
-# Day 2 - EngineBench LSP Small: crank-angle / cycle-to-cycle variability (EDA)
+# Stage 2 - EngineBench LSP Small: crank-angle / cycle-to-cycle variability (EDA)
 #
-# Builds on day1_explore_piv.py. For each crank angle, computes the mean, RMS
+# Builds on stage1_explore_piv.py. For each crank angle, computes the mean, RMS
 # and std (cycle-to-cycle variability) of velocity magnitude across all 1041
-# cycles at that crank angle - not just a single snapshot like Day 1.
+# cycles at that crank angle - not just a single snapshot like Stage 1.
 #
 # Credit: Baker et al., EngineBench, arXiv:2406.03325, 2024 - see README.md
 # Required acknowledgment: "The TCC engine work has been funded by General Motors
@@ -65,7 +65,7 @@ for i, cad in enumerate(crank_angles):
 
 fig.suptitle(f"Cycle-to-cycle variability across crank angles - {test_point} ({stats[crank_angles[0]]['n_cycles']} cycles each)")
 plt.tight_layout()
-plt.savefig("day2_cycle_variability.png", dpi=150)
+plt.savefig("stage2_cycle_variability.png", dpi=150)
 plt.show()
 
 # %%
@@ -76,6 +76,6 @@ for cad in crank_angles:
     print(f"  {cad}: {stats[cad]['std'].mean():.3f}")
 
 # %%
-# Next: fill in day2_learning_notes.md with your own read on which crank angle(s)
+# Next: fill in stage2_learning_notes.md with your own read on which crank angle(s)
 # show the most cycle-to-cycle variability, and why that might matter physically
 # (e.g. combustion-relevant crank angles vs. intake-dominated ones).

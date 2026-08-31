@@ -1,11 +1,11 @@
-# Day 5 - EngineBench LSP Small: sparse/gappy PIV -> full-field reconstruction
+# Stage 5 - EngineBench LSP Small: sparse/gappy PIV -> full-field reconstruction
 #
 # Technique: "gappy POD" (Everson & Sirovich, 1995). Build a POD basis from
 # complete training snapshots, then for a NEW snapshot with missing points,
 # solve a least-squares fit of POD coefficients using only the KNOWN points,
 # and use those coefficients to reconstruct the FULL field (including the
 # gaps). This is the sparse-to-full reconstruction task from the curriculum's
-# Day 5 stretch goal.
+# Stage 5 stretch goal.
 #
 # Credit: Baker et al., EngineBench, arXiv:2406.03325, 2024 - see README.md
 # Required acknowledgment: "The TCC engine work has been funded by General Motors
@@ -105,12 +105,12 @@ im3 = axes[3].pcolormesh(gridx, gridy, recon_u - truth_u, cmap="RdBu_r", shading
 axes[3].set_title("Error (recon - truth)")
 fig.colorbar(im3, ax=axes[3])
 
-fig.suptitle(f"Day 5: sparse-to-full PIV reconstruction (gappy POD), {CAD}, snapshot {TEST_SNAP_IDX}")
+fig.suptitle(f"Stage 5: sparse-to-full PIV reconstruction (gappy POD), {CAD}, snapshot {TEST_SNAP_IDX}")
 plt.tight_layout()
-plt.savefig("day5_sparse_reconstruction.png", dpi=150)
+plt.savefig("stage5_sparse_reconstruction.png", dpi=150)
 plt.show()
 
 # %%
-# Next: fill in day5_learning_notes.md. This closes out Project 01 - Portfolio
+# Next: fill in stage5_learning_notes.md. This closes out Project 01 - Portfolio
 # Card 01 (see project README) can be written once these notes and Days 1-4's
 # notes are filled in.
