@@ -112,6 +112,27 @@ plt.savefig("results/stage2_rig_generalization.png", dpi=150)
 plt.show()
 
 # %%
+# Direct question: is the 0.894mm orifice actually dragging down the model, or
+# is it just one noisy group among several similarly-noisy ones? Compare
+# with vs. without it in the training data entirely.
+def evaluate_subset(df, label):
+    Xtr, Xte, ytr, yte = train_test_split(df[FEATURES], df[TARGET], test_size=0.25, random_state=0)
+    m = XGBRegressor(n_estimators=200, max_depth=3, learning_rate=0.05,
+                      reg_lambda=2, subsample=0.8, colsample_bytree=0.8, random_state=0)
+    m.fit(Xtr, ytr)
+    test_r2 = r2_score(yte, m.predict(Xte))
+    mae = mean_absolute_error(yte, m.predict(Xte))
+    cv = cross_val_score(m, df[FEATURES], df[TARGET], cv=GroupKFold(n_splits=4),
+                          groups=df["orifDiam"], scoring="r2")
+    print(f"{label}: n={len(df)}, test R2={test_r2:.3f}, MAE={mae:.2f}mm, "
+          f"grouped-CV mean={cv.mean():.3f} std={cv.std():.3f}")
+    return test_r2, cv.mean(), cv.std()
+
+print("\nWith vs. without the 0.894mm orifice:")
+evaluate_subset(clean, "With 0.894mm (full dataset)")
+evaluate_subset(clean[clean["orifDiam"] != 0.894], "Without 0.894mm")
+
+# %%
 # Next: fill in stage2_learning_notes.md - which model actually generalizes
 # best (test R2, not train R2), and does the train/test gap match the
 # clustering concern flagged in Stage 1?

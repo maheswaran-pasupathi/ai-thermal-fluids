@@ -42,6 +42,14 @@ That pointed at the real cause: random k-fold CV doesn't respect the fact that t
 
 Six of seven orifice sizes generalize well (R2 0.69-0.92) even when completely held out - real evidence the model learned transferable physics, not just memorized clusters. The 0.894mm orifice is the one clear failure, and it makes physical sense: it's 5-10x larger than the 0.09-0.18mm range that dominates the rest of the data, which is a genuinely different atomization regime, not just "more of the same but noisier." This is a sharper, more honest finding than the vague train-test gap I reported first - the model's actual weak point is one specific, physically-explainable hardware condition, not general unreliability.
 
+## Direct check: does excluding the 0.894mm orifice actually help?
+
+Rather than assume, I tested with vs. without it in training entirely:
+- With 0.894mm (full 336 rows): grouped-CV mean R2=0.694, std=0.209
+- Without it (302 rows): grouped-CV mean R2=0.755, std=0.137
+
+Both the mean and the stability improve with it excluded - this isn't just one noisy group among several equally-noisy ones, it's a genuinely different regime that measurably drags down generalization on the rest of the (more homogeneous) dataset. For a production model I'd either train two separate models per regime or add a feature that distinguishes them, rather than pool everything and accept the worse aggregate number.
+
 ## What I'm still unsure about
 
 -

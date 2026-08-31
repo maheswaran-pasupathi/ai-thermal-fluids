@@ -1,6 +1,6 @@
 # Project 02 — Spray & Combustion ML
 
-**Status: 🔵 Stages 1-2 complete, Stage 3 in progress**
+**Status: 🟢 Stages 1-3 complete**
 
 ![Lift-off length vs. ambient temperature and other conditions](results/stage1_liftoff_vs_inputs.png)
 
@@ -13,7 +13,7 @@ I set out to show that ML on real ECN combustion data can:
 - Predict a real combustion KPI (lift-off length) from ambient/injection conditions
 - Explain *why* the model predicts what it does (SHAP), and check that against known combustion physics
 
-Stage 1 is done: 948 raw rows cleaned to 336 usable rows, with a real data-cleaning bug caught and fixed along the way (see notes). Stages 2-3 (regression + SHAP) are next.
+All 3 stages done: 948 raw rows cleaned to 336 usable rows (with a real data-cleaning bug caught and fixed along the way), XGBoost predicts lift-off length at R2=0.797, and SHAP-derived feature directions matched known combustion physics on all 5 features - the model learned real physics, not a spurious pooled-dataset pattern.
 
 ## Physics baseline
 Ambient O2 concentration, ambient temperature, ambient density, injection pressure, and nozzle orifice diameter all influence ignition delay and flame stabilization (lift-off length) in a diesel spray.
@@ -36,21 +36,27 @@ Stage 1: clean the raw CSV (948 rows), select lift-off length as the target (bes
 |---|---|---|---|
 | 1 | Data cleaning + EDA | 336/948 clean rows; temperature is the strongest visible driver | <img src="results/stage1_liftoff_vs_inputs.png" width="160"> |
 | 2 | Regression: linear → RF → XGBoost | XGBoost best (R2=0.797, MAE=4.57mm); generalizes well to 6/7 orifice sizes held out entirely, fails on the 0.894mm orifice (R2=0.354) - a genuinely different, larger atomization regime | <img src="results/stage2_rig_generalization.png" width="160"> |
+| 3 | SHAP feature importance vs. physics | Ta and dens dominate importance; all 5 feature directions matched known combustion chemistry | <img src="results/stage3_shap_summary.png" width="160"> |
 
-Full code and my stage-by-stage notes: `stage1_data_cleaning.py` and the matching `stage*_learning_notes.md` files.
+Full code and my stage-by-stage notes: `stage1_data_cleaning.py` … `stage3_shap.py` and the matching `stage*_learning_notes.md` files.
 
 **Appendix (exploratory, not a numbered stage):** I also tried validating the tabulated lift-off values against their source OH* chemiluminescence images directly, independent of the CSV. Real result (r=0.95 on 7 of 19 images) and a real open question I haven't resolved (my threshold wasn't the documented ECN measurement definition) - see `appendix_image_validation.py` and its notes.
 
 ## Error analysis
-Not applicable yet - Stage 1 is data cleaning, no model trained. Will report per-stage from Stage 2 onward, same standard as Project 01.
+Linear MAE=7.63mm, RMSE=11.21mm, R2=0.550 vs. XGBoost MAE=4.57mm, RMSE=7.54mm, R2=0.797 on a random 75/25 split. That number alone overstates confidence though - the leave-one-orifice-out check (Genuine limitations below) shows the real error is condition-dependent: MAE ranges from 2.61mm to 9.25mm depending on which nozzle size is held out.
+
+## Engineering conclusion
+Ambient temperature and density dominate lift-off length prediction, together outweighing injection pressure and O2 concentration by roughly 3-4x in SHAP importance - and every feature's direction of effect matched known combustion chemistry without needing any correction. That's the strongest evidence in this project that the model learned real physics rather than a pooled-dataset artifact. The one place it doesn't generalize (the 0.894mm orifice) isn't random noise either - it's a physically distinct, much larger nozzle than the rest of the dataset, and it's also the feature SHAP ranks least important and most directionally ambiguous. The model's strength and its one weak point are both explainable from the same physics, not two unrelated findings.
 
 ## Genuine limitations
 This table pools many different studies/rigs rather than one controlled sweep. Tested directly with a leave-one-orifice-size-out check (train on every other nozzle size, test only on the held-out one): the model generalizes well to 6 of 7 orifice sizes (R2 0.69-0.92) even completely unseen, but fails on the 0.894mm orifice (R2=0.354) - a real, physically-explainable weak point (that orifice is 5-10x larger than the rest of the dataset, a genuinely different atomization regime), not a vague "small dataset" excuse.
 
+Checked directly rather than assumed: excluding that one orifice size from training improves both accuracy and stability across the rest of the dataset (grouped-CV R2 0.694→0.755, std 0.209→0.137) - it's genuinely dragging down generalization, not just one noisy group among several. For anything beyond a portfolio exercise, the right fix is two separate models per regime, not pooling and accepting the worse number.
+
 ## How to reproduce
 1. `pip install -r ../../requirements.txt`
 2. Download the data directly, no account needed: `curl -o ecn_dieseldata.csv https://ecn.sandia.gov/databases/dieseldata.csv`
-3. Run `stage1_data_cleaning.py` (`# %%` cell blocks).
+3. Run `stage1_data_cleaning.py` → `stage2_regression.py` → `stage3_shap.py` in order (`# %%` cell blocks). Stage 1 produces `ecn_clean_liftoff.csv`, which Stages 2-3 read.
 
 ## Source attribution
 Data: Engine Combustion Network (ECN), Sandia National Laboratories, and the contributing research institutions whose experiments populate this table (attribution per-row via the table's `refs`/`fileBaseName` columns on the ECN site).
