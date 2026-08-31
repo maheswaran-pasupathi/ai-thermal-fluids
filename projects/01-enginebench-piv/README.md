@@ -8,7 +8,12 @@
 In-cylinder PIV flow structure (tumble/vortex behavior, cycle-to-cycle variability) directly affects mixture formation and combustion quality. Can ML reconstruct or predict flow fields from partial data, cheaply enough to be useful alongside experiment/CFD?
 
 ## Objective and outcomes
-I set out to show that ML techniques on real in-cylinder PIV data can: (1) compress turbulent flow into a tractable representation, (2) interpolate flow state from sparse conditions, and (3) reconstruct fields from incomplete measurements. I got a working pipeline covering all three - including where it's weak (Stage 4), reported honestly rather than hidden. This is Phase 1: a small subset, method validated, not a production model. See Phase 2 below for the scale-up and why it matters industrially.
+I set out to show that ML techniques on real in-cylinder PIV data can:
+- Compress turbulent flow into a tractable representation
+- Interpolate flow state from sparse conditions
+- Reconstruct fields from incomplete measurements
+
+What I got: a working pipeline covering all three, including where it's weak (Stage 4), reported honestly rather than hidden. This is Phase 1 - a small subset, method validated, not a production model. See Phase 2 below for the scale-up and why it matters industrially.
 
 ## Physics baseline
 PIV plane, crank-angle-resolved U/V velocity, velocity magnitude, vector/quiver structure, vorticity, cycle-to-cycle variability.
