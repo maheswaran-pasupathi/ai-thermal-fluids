@@ -35,11 +35,15 @@ Stage 1: CFD-vs-experiment validation (exhaust temperature profile) + live senso
 | 1b | 3D CFD field render | Real hot-air-rises pattern, localized hotspot at rack exhaust | <img src="results/stage1b_cfd_field_plan.png" width="160"> |
 | 2 | Thermal KPI surrogate | Random Forest R2=0.952, but flagged: narrow 1.4C training window, not a designed sweep | <img src="results/stage2_surrogate_comparison.png" width="160"> |
 | 3 | Cooling-power optimization | 23.5% less cooling power for the same predicted hotspot temp, search bounded to trained range | <img src="results/stage3_optimization_tradeoff.png" width="160"> |
-| 4 | Interactive surrogate dashboard | Hotspot prediction, safe/unsafe check, bounded cooling recommendation, extrapolation warning | `streamlit run code/stage4_dashboard.py` |
+| 4 | Interactive surrogate dashboard | Hotspot prediction, safe/unsafe check, bounded cooling recommendation, extrapolation warning | <img src="results/stage4_surrogate_dashboard.svg" width="240"> |
 
 ## Stage 4 — Interactive surrogate dashboard
 
 The dashboard turns the surrogate into a small engineering decision-support prototype instead of leaving it as a model script.
+
+<img src="results/stage4_surrogate_dashboard.svg" width="100%" alt="Static preview of the interactive data-center cooling surrogate dashboard">
+
+> **Dashboard preview:** this is a static README representation of the actual Streamlit interface and documented project result. Run the app below for the live sliders, prediction and optimization workflow.
 
 ### Predict hotspot
 Adjust the five cooling/air-side inputs and the dashboard returns:
