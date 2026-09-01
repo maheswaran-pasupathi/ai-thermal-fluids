@@ -1,18 +1,26 @@
 # AI for Thermal & Fluid Engineering
 
-**CFD & Thermal Engineering × Scientific Machine Learning**
+**CFD & Thermal Engineering × Engineering Automation × Scientific Machine Learning**
 
 Combustion • Conjugate Heat Transfer • Aerodynamics • Battery & Electronics Cooling • Surrogate Modeling • Physics-Informed ML • Digital Twins • Neural Operators
 
-I'm [Maheswaran Pasupathi](https://github.com/maheswaran-pasupathi), a CFD/thermal simulation engineer with 9 years in commercial CFD tools (STAR-CCM+, CONVERGE, GT-SUITE) and Python/Java automation, including workflows that cut simulation turnaround by 40–50%. Like a lot of CFD engineers right now, I've found the path into AI/ML genuinely hard to figure out — scattered tutorials, unclear where existing physics knowledge actually transfers, and very little written for someone coming from the CFD side rather than a pure data-science background.
+I'm [Maheswaran Pasupathi](https://github.com/maheswaran-pasupathi), a CFD/thermal simulation engineer with extensive experience in commercial simulation tools (STAR-CCM+, CONVERGE, GT-SUITE) and hands-on engineering automation using Python and Java. Automation has been a significant part of my engineering work — building workflows around simulation setup, execution, post-processing, data handling, and repetitive CAE tasks.
 
-This repo is me learning that transition in public, using only free and open tools — no commercial CFD or ML software required to follow along — so other CFD engineers and aspirants facing the same struggle have something concrete to learn from, question, or improve.
+I'm now extending that engineering and automation foundation into **AI/ML for CFD, thermal and simulation problems**. What I found during this transition is that learning ML concepts in isolation is only one part of the challenge. The harder and more useful question is: **how do we translate those concepts into physically meaningful engineering workflows?**
 
-This is a public, in-progress portfolio — projects are added and updated as they're built, not dumped in finished. Every project favors **physical interpretation over model-accuracy claims** and states clearly what stage it's at.
+For a CFD or thermal engineer, that creates practical questions that generic ML tutorials rarely answer: How should a velocity, pressure or temperature field be represented for ML? What should be a feature and what should be a target? When is a simple regression model enough, and when do POD/PCA, CNNs, surrogate models, PINNs or neural operators make sense? How do we distinguish a statistically good prediction from a physically credible one? And where can AI genuinely complement CFD — through reduced-order models, optimization, reconstruction or digital twins — without treating it as a replacement for engineering physics?
+
+This repository documents how I'm working through those questions using public engineering datasets and reproducible projects. The approach is deliberately **physics first**: understand the engineering problem and data, formulate the ML problem, select an appropriate method, validate the result against engineering expectations, examine limitations, and only then discuss what the model may be useful for.
+
+I'm sharing the transition in public because I expect many CFD and thermal engineers face the same gap: the AI/ML concepts are understandable, but implementing them meaningfully in their own engineering domain is much less straightforward. My aim is for these projects to provide concrete examples that others can reproduce, question, improve, and use as a starting point for their own transition into AI-enabled engineering.
+
+This is a public, in-progress portfolio — projects are added and updated as they're built, not presented as finished before the evidence exists. Every project favors **physical interpretation over model-accuracy claims** and states clearly what stage it's at.
 
 ## Why this repo exists
 
-Most "AI for CFD" content I've found online is either pure ML with no engineering grounding, or pure CFD with no ML — and very little of it is written from the perspective of someone actually stuck between the two. I'm trying to close that gap here: real physics datasets, the engineering meaning explained for every result, and honesty about where a model's predictions can and can't be trusted.
+There is plenty of excellent material for learning ML algorithms and plenty for learning CFD. The gap I want to explore is the engineering layer between them: **turning simulation and experimental data into useful ML problems without losing the physics that makes the result trustworthy.**
+
+Each project therefore follows a consistent path: **Engineering problem → Physics baseline → Dataset → ML formulation → Method → Result → Error analysis → Engineering conclusion.** The objective is not to use the most advanced algorithm available; it is to understand where a method adds engineering value, where it fails, and what evidence is required before trusting it.
 
 ## Portfolio
 
@@ -26,8 +34,6 @@ Most "AI for CFD" content I've found online is either pure ML with no engineerin
 | 06 | [Thermal Digital Twin (flagship)](projects/06-transient-cht-digital-twin/) | Transient conjugate heat transfer, battery/electronics cooling transfer | U-Net → FNO/DeepONet | ⚪ Planned | - |
 | 07 | [Scientific ML / Neural Operators](projects/07-cfdbench-neural-operator/) | Canonical CFD PDE solution fields | Fourier Neural Operator | ⚪ Planned | - |
 
-I follow the same structure for every project card: **Engineering problem → Physics baseline → Dataset → Method → Result → Error analysis → Engineering conclusion**, with one visual result and full source attribution to the original dataset/paper.
-
 ## Community
 
 I also want this repo to be a shared learning space for CFD engineers — experienced or just starting out — who want to pick up AI/ML without losing the physics grounding that makes CFD work trustworthy.
@@ -40,7 +46,7 @@ If you're a CFD/thermal engineer curious about ML, or an ML person curious about
 
 ## Let's collaborate
 
-If this resonates with you — you're a CFD engineer trying to figure out this same transition, or you've already found part of the way through — I'd like to hear from you. [Follow/connect on LinkedIn](https://www.linkedin.com/in/srimahes) and let's discuss: what's actually working, what resources helped, and how we as a CFD simulation community can give back to each other during this shift, without commercial tooling gatekeeping who gets to learn it.
+If this resonates with you — you're a CFD engineer working through the same transition, or you've already found part of the way through — I'd like to hear from you. [Follow/connect on LinkedIn](https://www.linkedin.com/in/srimahes) and let's discuss what is actually working, what resources helped, where physics and ML meet well, and where they do not.
 
 ## Running this locally
 
