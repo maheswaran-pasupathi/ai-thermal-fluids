@@ -1,58 +1,205 @@
 # AI for Thermal & Fluid Engineering
 
-**CFD & Thermal Engineering × Scientific Machine Learning**
+### CFD & Thermal Engineering × Engineering Automation × Scientific Machine Learning
 
-Combustion • Conjugate Heat Transfer • Aerodynamics • Battery & Electronics Cooling • Surrogate Modeling • Physics-Informed ML • Digital Twins • Neural Operators
+**Combustion** · **Heat Transfer & CHT** · **Aerodynamics** · **Thermal Management** · **Surrogate Modeling** · **Explainable ML** · **Digital Twins** · **Neural Operators**
 
-I'm [Maheswaran Pasupathi](https://github.com/maheswaran-pasupathi), a CFD/thermal simulation engineer with 9 years in commercial CFD tools (STAR-CCM+, CONVERGE, GT-SUITE) and Python/Java automation, including workflows that cut simulation turnaround by 40–50%. Like a lot of CFD engineers right now, I've found the path into AI/ML genuinely hard to figure out — scattered tutorials, unclear where existing physics knowledge actually transfers, and very little written for someone coming from the CFD side rather than a pure data-science background.
+---
 
-This repo is me learning that transition in public, using only free and open tools — no commercial CFD or ML software required to follow along — so other CFD engineers and aspirants facing the same struggle have something concrete to learn from, question, or improve.
+## A glimpse of what is inside
 
-This is a public, in-progress portfolio — projects are added and updated as they're built, not dumped in finished. Every project favors **physical interpretation over model-accuracy claims** and states clearly what stage it's at.
+<table>
+<tr>
+<td width="33%" align="center">
+<a href="projects/01-enginebench-piv/"><strong>In-Cylinder Flow Reconstruction</strong></a><br><br>
+<img src="projects/01-enginebench-piv/results/stage3_pod_reconstruction.png" width="100%"><br>
+<sub>PIV → POD/PCA → regression → reconstructed flow</sub>
+</td>
+<td width="33%" align="center">
+<a href="projects/02-ecn-spray-combustion/"><strong>Spray & Combustion ML</strong></a><br><br>
+<img src="projects/02-ecn-spray-combustion/results/stage3_shap_summary.png" width="100%"><br>
+<sub>Experimental spray/combustion data → ML → SHAP interpretation</sub>
+</td>
+<td width="33%" align="center">
+<a href="projects/03-ecoqube-datacenter-cooling/"><strong>Thermal Surrogate & Optimization</strong></a><br><br>
+<img src="projects/03-ecoqube-datacenter-cooling/results/stage4_surrogate_dashboard.svg" width="100%"><br>
+<sub>Thermal surrogate → hotspot prediction → bounded cooling recommendation</sub>
+</td>
+</tr>
+</table>
 
-## Why this repo exists
+**Three different engineering problems. Three different data structures. Three different ML formulations. One common rule: the result still has to make physical sense.**
 
-Most "AI for CFD" content I've found online is either pure ML with no engineering grounding, or pure CFD with no ML — and very little of it is written from the perspective of someone actually stuck between the two. I'm trying to close that gap here: real physics datasets, the engineering meaning explained for every result, and honesty about where a model's predictions can and can't be trusted.
+---
+
+## About me — still fascinated by the engineering problem
+
+I'm [Maheswaran Pasupathi](https://github.com/maheswaran-pasupathi), a CFD and thermal simulation engineer who is still fascinated by a deceptively simple question:
+
+> **Why is the physics behaving this way — and can we understand it better, faster, or more systematically?**
+
+That curiosity has taken me through combustion, fluid flow, conjugate heat transfer, aerodynamics and thermal-management problems. Along the way, I worked heavily on **engineering automation with Python and Java** because I found myself asking another question:
+
+> **If an engineer has to repeat the same simulation task again and again, why should the engineer be the automation?**
+
+That led to automation around:
+
+- simulation setup and execution;
+- engineering data processing;
+- automated post-processing;
+- repetitive CAE workflows;
+- Python/Java simulation utilities and workflow orchestration.
+
+Now the next question interests me:
+
+> **Can AI/ML help us extract more engineering insight from simulation and experimental data without losing the physics that makes the answer trustworthy?**
+
+That is the transition documented in this repository.
+
+---
+
+## The part that was not obvious
+
+Learning an ML algorithm is one thing. **Turning it into a useful CFD or thermal-engineering problem is another.**
+
+The questions I repeatedly encountered were not only about Python or model training:
+
+| Engineering question | Why it matters |
+|---|---|
+| How should a velocity, pressure or temperature **field** become ML data? | CFD data is spatial, structured and physics-dependent — not a typical spreadsheet. |
+| What should be the **feature** and what should be the **target**? | A poorly formulated engineering question produces a meaningless ML problem. |
+| When is simple regression enough? | More complex ML is not automatically better engineering. |
+| When do POD/PCA, CNNs, surrogates, PINNs or neural operators make sense? | The representation and physics should influence the method. |
+| Is a good R²/RMSE also a **physically credible prediction**? | Statistical accuracy alone does not establish engineering trust. |
+| Has the model learned physics or only correlation? | Generalization and extrapolation matter in design work. |
+| Where can AI complement CFD — and where should it not? | The objective is engineering value, not replacing physics with AI. |
+
+This repository is my practical way of working through those questions rather than stopping at generic ML examples.
+
+---
+
+## My working rule: physics first
+
+<table>
+<tr>
+<td align="center"><strong>1. ENGINEERING<br>PROBLEM</strong><br><sub>What are we actually trying to understand?</sub></td>
+<td align="center">→</td>
+<td align="center"><strong>2. PHYSICS<br>BASELINE</strong><br><sub>What behavior should we expect?</sub></td>
+<td align="center">→</td>
+<td align="center"><strong>3. DATA<br>UNDERSTANDING</strong><br><sub>What does the dataset physically represent?</sub></td>
+<td align="center">→</td>
+<td align="center"><strong>4. ML<br>FORMULATION</strong><br><sub>Features, targets, representation and method</sub></td>
+</tr>
+<tr>
+<td align="center"><strong>8. ENGINEERING<br>CONCLUSION</strong><br><sub>What can we actually use?</sub></td>
+<td align="center">←</td>
+<td align="center"><strong>7. LIMITATIONS &<br>ERRORS</strong><br><sub>Where does it fail?</sub></td>
+<td align="center">←</td>
+<td align="center"><strong>6. PHYSICAL<br>VALIDATION</strong><br><sub>Does the prediction make engineering sense?</sub></td>
+<td align="center">←</td>
+<td align="center"><strong>5. MODEL &<br>RESULT</strong><br><sub>Train, test and quantify performance</sub></td>
+</tr>
+</table>
+
+**The ML model sits inside the engineering workflow — not the other way around.**
+
+---
 
 ## Portfolio
 
-| # | Project | Physics | AI/ML Method | Status | Preview |
-|---|---|---|---|---|---|
-| 01 | [In-Cylinder Flow Reconstruction](projects/01-enginebench-piv/) | Engine PIV flow, tumble/vortex structure, cycle variability | POD/PCA → regression → reconstruction | 🟢 Complete | <img src="projects/01-enginebench-piv/results/stage3_pod_reconstruction.png" width="200"> |
-| 02 | [Spray & Combustion ML](projects/02-ecn-spray-combustion/) | Ignition delay, spray penetration, lift-off length | Random Forest / XGBoost + SHAP | 🟢 Complete | <img src="projects/02-ecn-spray-combustion/results/stage3_shap_summary.png" width="200"> |
-| 03 | [Data Center Cooling Surrogate](projects/03-ecoqube-datacenter-cooling/) | Thermal surrogate + cooling control/optimization | Random Forest + grid-search optimization | 🟢 Complete | <img src="projects/03-ecoqube-datacenter-cooling/results/stage1b_cfd_field_plan.png" width="200"> |
-| 04 | [Vehicle Aerodynamics AI](projects/04-drivaernet-aero/) | Drag coefficient prediction from geometry | XGBoost + SHAP explainability | ⚪ Planned | - |
-| 05 | [Electronics Hotspot Prediction](projects/05-electronics-thermal-cnn/) | Power/heat-source layout → temperature map | CNN | ⚪ Planned | - |
-| 06 | [Thermal Digital Twin (flagship)](projects/06-transient-cht-digital-twin/) | Transient conjugate heat transfer, battery/electronics cooling transfer | U-Net → FNO/DeepONet | ⚪ Planned | - |
-| 07 | [Scientific ML / Neural Operators](projects/07-cfdbench-neural-operator/) | Canonical CFD PDE solution fields | Fourier Neural Operator | ⚪ Planned | - |
+| # | Project | Engineering problem | AI/ML approach | Status |
+|---|---|---|---|---|
+| 01 | [In-Cylinder Flow Reconstruction](projects/01-enginebench-piv/) | Reconstruct and interpret in-cylinder PIV flow structures and variability | POD/PCA → regression → reconstruction | **Complete** |
+| 02 | [Spray & Combustion ML](projects/02-ecn-spray-combustion/) | Understand ignition delay, spray penetration and lift-off behavior | Random Forest / XGBoost + SHAP | **Complete** |
+| 03 | [Data Center Cooling Surrogate](projects/03-ecoqube-datacenter-cooling/) | Build a thermal surrogate and explore cooling-control optimization | Random Forest + grid-search optimization | **Complete** |
+| 04 | [Vehicle Aerodynamics AI](projects/04-drivaernet-aero/) | Connect vehicle geometry/design information to aerodynamic drag | XGBoost + SHAP explainability | Planned |
+| 05 | [Electronics Hotspot Prediction](projects/05-electronics-thermal-cnn/) | Predict temperature fields/hotspots from power and heat-source layout | CNN | Planned |
+| 06 | [Thermal Digital Twin](projects/06-transient-cht-digital-twin/) | Fast prediction of transient conjugate heat-transfer behavior | U-Net → FNO/DeepONet | Planned |
+| 07 | [Scientific ML / Neural Operators](projects/07-cfdbench-neural-operator/) | Learn fast mappings for canonical CFD solution fields | Fourier Neural Operator | Planned |
 
-I follow the same structure for every project card: **Engineering problem → Physics baseline → Dataset → Method → Result → Error analysis → Engineering conclusion**, with one visual result and full source attribution to the original dataset/paper.
+---
+
+## What I am trying to learn through the portfolio
+
+Instead of building seven disconnected ML demos, the projects deliberately move across different engineering representations:
+
+**Experimental vectors** → **spatial flow fields** → **thermal responses** → **geometry/design spaces** → **temperature maps** → **transient fields** → **operator learning**
+
+The progression lets me explore:
+
+- reduced-order representations of CFD/PIV fields;
+- explainable ML for combustion and spray physics;
+- surrogate modeling and engineering optimization;
+- geometry-to-performance relationships in aerodynamics;
+- image/field-based thermal prediction;
+- transient thermal digital twins;
+- Scientific ML and neural operators.
+
+---
+
+## Why I am sharing this
+
+The AI/ML concepts themselves are increasingly accessible. The difficult part for many simulation engineers is the bridge from:
+
+> **“I understand what this ML method does.”**
+>
+> to
+>
+> **“I know how to formulate and validate a meaningful engineering problem with it.”**
+
+I'm documenting that bridge openly so others facing the same transition can:
+
+- reproduce the examples;
+- question the assumptions;
+- see what worked and what did not;
+- compare the ML result with the underlying physics;
+- improve the approach rather than simply copy a notebook.
+
+This is a **public, in-progress engineering portfolio**. Projects are updated as they are built and validated. I would rather document a limitation than hide it behind an attractive accuracy metric.
+
+---
+
+## Principles I want to keep throughout
+
+- **Physics before algorithm selection**
+- **Engineering interpretation before accuracy headlines**
+- **Simple model before unnecessary complexity**
+- **Validation before claiming usefulness**
+- **Limitations and extrapolation stated explicitly**
+- **AI complements engineering; it does not automatically replace it**
+- **Public/research data only — no proprietary or employer data**
+
+---
 
 ## Community
 
-I also want this repo to be a shared learning space for CFD engineers — experienced or just starting out — who want to pick up AI/ML without losing the physics grounding that makes CFD work trustworthy.
+I want this repository to be useful to CFD/thermal engineers exploring AI/ML and to ML practitioners interested in engineering simulation.
 
-- **Discussions** are open — ask questions, suggest datasets, share your own approach to any of the problems above, or point out where a result looks physically wrong.
-- **Issues** are open for dataset suggestions, method suggestions, or spotted errors.
-- See [CONTRIBUTING.md](CONTRIBUTING.md) if you'd like to contribute a notebook, fix, or project card of your own.
+- **Discussions** — technical questions, alternative approaches and useful datasets
+- **Issues** — method suggestions, dataset suggestions and identified errors
+- [CONTRIBUTING.md](CONTRIBUTING.md) — guidance for contributing a notebook, correction or project improvement
 
-If you're a CFD/thermal engineer curious about ML, or an ML person curious about CFD, you're in the right place.
+If a result here looks physically wrong, that is a useful discussion to have.
 
 ## Let's collaborate
 
-If this resonates with you — you're a CFD engineer trying to figure out this same transition, or you've already found part of the way through — I'd like to hear from you. [Follow/connect on LinkedIn](https://www.linkedin.com/in/srimahes) and let's discuss: what's actually working, what resources helped, and how we as a CFD simulation community can give back to each other during this shift, without commercial tooling gatekeeping who gets to learn it.
+If you are working on the same intersection of **CFD, thermal engineering, automation and Scientific ML**, I'd be interested in exchanging approaches and lessons learned.
+
+[Connect with me on LinkedIn](https://www.linkedin.com/in/srimahes).
 
 ## Running this locally
 
-```
+```bash
 pip install -r requirements.txt
 ```
 
-Covers the core dependencies (numpy, h5py, matplotlib, scikit-learn) used across projects, plus `kaggle` if you want to download a dataset yourself via the Kaggle API. Each project README lists its exact dataset and any project-specific dependency beyond this list.
+Core dependencies include `numpy`, `h5py`, `matplotlib` and `scikit-learn`, with project-specific dependencies documented in the individual project READMEs.
 
-## Datasets used (with attribution)
+## Datasets and attribution
 
-All datasets are public/research datasets, used with attribution to their original authors. Links and citations are in each project's own README. No proprietary or employer data is used anywhere in this repository.
+All datasets are public/research datasets and remain credited to their original authors. Dataset links, papers and citations are maintained in each project README.
+
+**No proprietary or employer data is used in this repository.**
 
 ## License
 
