@@ -22,8 +22,8 @@
 </td>
 <td width="33%" align="center">
 <a href="projects/03-ecoqube-datacenter-cooling/"><strong>Thermal Surrogate & Optimization</strong></a><br><br>
-<img src="projects/03-ecoqube-datacenter-cooling/results/stage1b_cfd_field_plan.png" width="100%"><br>
-<sub>Thermal data → surrogate model → cooling optimization</sub>
+<img src="projects/03-ecoqube-datacenter-cooling/results/stage4_surrogate_dashboard.svg" width="100%"><br>
+<sub>Thermal surrogate → hotspot prediction → bounded cooling recommendation</sub>
 </td>
 </tr>
 </table>
