@@ -63,14 +63,20 @@ plt.rcParams["axes.grid"] = True
 # ### 1a. Find the file (Kaggle mounts it under /kaggle/input; locally I keep a copy)
 
 # %%
-CANDIDATES = [
-    "/kaggle/input/battery-remaining-useful-life-rul/Battery_RUL.csv",
-    "data/Battery_RUL.csv",
-    os.path.expanduser("~/KaggleLab/data/Battery_RUL.csv"),
-    "D:/Claude/KaggleLab/data/Battery_RUL.csv",
-]
+import glob
+
+CANDIDATES = (
+    glob.glob("/kaggle/input/**/Battery_RUL.csv", recursive=True)
+    + glob.glob("/kaggle/input/**/*.csv", recursive=True)
+    + [
+        "data/Battery_RUL.csv",
+        os.path.expanduser("~/KaggleLab/data/Battery_RUL.csv"),
+        "D:/Claude/KaggleLab/data/Battery_RUL.csv",
+    ]
+)
 BATTERY_CSV = next((p for p in CANDIDATES if os.path.exists(p)), None)
 print("using:", BATTERY_CSV)
+assert BATTERY_CSV, "Battery_RUL.csv not found - attach the Kaggle dataset or place it under data/"
 
 # %% [markdown]
 # ### 1b. Read it and look at the first rows
