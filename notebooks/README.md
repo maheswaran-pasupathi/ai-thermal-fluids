@@ -3,20 +3,22 @@
 Learning-in-public notebooks. Each has a `.ipynb` (rendered, with outputs) and a
 paired `.py` (jupytext percent format) which is the version to diff and review.
 
-## `engineering_lab.ipynb` — cumulative engineering lab
+## `fundamentals.ipynb`
 
-One running notebook, not a new one per day. Two parts:
+Small self-contained numerical experiments, no external data: Biot/Fourier and
+when the lumped-capacitance assumption is legal; transient integration schemes
+(forward/backward Euler, RK4) and their stability limit and accuracy order; 1-D
+conduction with generation vs analytic plus a grid-convergence check. Each result
+is checked against a closed-form solution.
 
-- **Part A – fundamentals:** self-contained numerical experiments (Biot/Fourier
-  and the lumped-capacitance assumption, transient integration schemes and their
-  stability/accuracy order, 1-D conduction with generation vs analytic +
-  grid convergence).
-- **Part B – open-data investigation 1:** capacity fade / remaining-useful-life
-  on the Kaggle *Battery Remaining Useful Life (RUL)* dataset
-  (`ignaciovinuales/battery-remaining-useful-life-rul`, CC0-1.0). Cell-wise
-  train/test split, physically-signed coefficients, honest held-out error.
-- **Part C:** method notes on ARC-tracing battery thermal-runaway modelling,
-  tied to the `BatteryTR` Modelica library in `vehicle-systems-engineering`.
+## `battery_rul.ipynb`
+
+Open-data investigation: capacity fade / remaining-useful-life on the Kaggle
+*Battery Remaining Useful Life (RUL)* dataset
+(`ignaciovinuales/battery-remaining-useful-life-rul`, CC0-1.0). One engineering
+question, the full source -> data-quality -> characterisation -> baseline model
+-> cell-wise validation -> residual physics chain. `Cycle_Index` is deliberately
+excluded (predicting cycles-left from cycle-number is circular here).
 
 Data: on Kaggle, attach the dataset through the UI. Locally:
 
@@ -27,13 +29,12 @@ kaggle datasets download -d ignaciovinuales/battery-remaining-useful-life-rul -p
 
 The dataset file is not committed here.
 
-## `modelica_basics.ipynb` — system-modelling stream, M1
+## `modelica_basics.ipynb`
 
-OpenModelica from the compiler only (`omc` + `.mos` script → CSV → matplotlib,
-no GUI). Mass–spring–damper, RC step response, and a lumped thermal body, each
+OpenModelica from the compiler only (`omc` + `.mos` script -> CSV -> matplotlib,
+no GUI). Mass-spring-damper, RC step response, and a lumped thermal body, each
 built from Modelica Standard Library components and checked against its
-closed-form solution. Needs OpenModelica on the machine (`omc` on PATH or at
-`D:\OpenModelica\bin\omc.exe`).
+closed-form solution. Needs OpenModelica on the machine.
 
 ## Reproducing
 
