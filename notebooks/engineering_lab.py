@@ -11,25 +11,25 @@
 # ---
 
 # %% [markdown]
-# # Engineering Lab Notebook — cumulative
+# # Engineering Lab Notebook  -  cumulative
 #
 # This is one running notebook, not a new one every day. I add a section, re-run
 # the whole thing, and keep it reproducible. It has two jobs:
 #
-# 1. **Fundamentals** — small, self-contained numerical experiments that pin down
+# 1. **Fundamentals**  -  small, self-contained numerical experiments that pin down
 #    the physics I rely on elsewhere (heat transfer, transient response, numerical
 #    methods, how I decide a model is "good enough").
-# 2. **Open-data investigations** — take a real public dataset, ask one
+# 2. **Open-data investigations**  -  take a real public dataset, ask one
 #    engineering question, build a transparent baseline model, and validate it on
 #    data it never saw.
 #
 # Every investigation follows the same checklist:
 #
-# > question → source / provenance / licence → test configuration → data
-# > dictionary + units → first-principles expectation → data-quality checks →
-# > characterisation → transparent baseline model → parameter identification →
-# > validation on a *different* condition → residual / error physics →
-# > engineering conclusion → assumptions and limits → reproducible code + figures
+# > question -> source / provenance / licence -> test configuration -> data
+# > dictionary + units -> first-principles expectation -> data-quality checks ->
+# > characterisation -> transparent baseline model -> parameter identification ->
+# > validation on a *different* condition -> residual / error physics ->
+# > engineering conclusion -> assumptions and limits -> reproducible code + figures
 #
 # **Credentials note:** no API keys or tokens live in this notebook. On Kaggle the
 # dataset is attached through the UI; locally it is pulled with the Kaggle CLI
@@ -57,7 +57,7 @@ print("battery csv:", BATTERY_CSV)
 
 # %% [markdown]
 # ---
-# # Part A — Fundamentals
+# # Part A  -  Fundamentals
 #
 # These sections use no external data. They exist so that when a later
 # investigation says "the resistance rise shows up as a faster voltage drop" or
@@ -69,10 +69,10 @@ print("battery csv:", BATTERY_CSV)
 #
 # A solid body cooling in a fluid is governed by two numbers:
 #
-# * **Biot** $Bi = hL_c/k$ — ratio of internal conduction resistance to surface
+# * **Biot** $Bi = hL_c/k$  -  ratio of internal conduction resistance to surface
 #   convection resistance. $Bi \ll 1$ means the body is nearly isothermal and a
 #   single-temperature ("lumped") model is legitimate.
-# * **Fourier** $Fo = \alpha t / L_c^2$ — dimensionless time. The transient is
+# * **Fourier** $Fo = \alpha t / L_c^2$  -  dimensionless time. The transient is
 #   essentially over by $Fo \approx 1$.
 #
 # $L_c = V/A_s$ is the characteristic length. Below I check the lumped assumption
@@ -99,12 +99,12 @@ print(f"\nthermal diffusion time (Fo=1): {t63/60:.1f} min")
 
 # %% [markdown]
 # So an air-cooled cell can be treated as a single lump; a cold-plate-cooled cell
-# cannot — the through-plane gradient matters. That is exactly why the Modelica
+# cannot  -  the through-plane gradient matters. That is exactly why the Modelica
 # cell model in my `BatteryTR` library splits the cell into a few through-plane
 # nodes instead of one.
 
 # %% [markdown]
-# ## A2. Transient lumped capacitance — analytic vs numerical
+# ## A2. Transient lumped capacitance  -  analytic vs numerical
 #
 # Energy balance on an isothermal lump with convective loss:
 #
@@ -193,7 +193,7 @@ for dt in [tau / 2, tau / 4, tau / 8, tau / 16]:
 #
 # * Forward Euler blows up almost exactly at $\Delta t = 2\tau$, as predicted.
 # * FE and BE converge at first order, RK4 at fourth order.
-# * BE is unconditionally stable but still only first-order accurate — stability
+# * BE is unconditionally stable but still only first-order accurate  -  stability
 #   is not accuracy.
 #
 # This is why stiff system models (a fast electrical time constant sitting next to
@@ -268,7 +268,7 @@ print(f"peak T  exact={peak:.3f}  FD(N=161)={Th_.max():.3f}  "
 
 # %% [markdown]
 # ---
-# # Part B — Investigation 1: battery capacity fade and remaining useful life
+# # Part B  -  Investigation 1: battery capacity fade and remaining useful life
 #
 # ### B0. Engineering question
 #
@@ -276,8 +276,8 @@ print(f"peak T  exact={peak:.3f}  FD(N=161)={Th_.max():.3f}  "
 # how fast the voltage fell through a fixed band, charge timings), can I:
 #
 # 1. explain *physically* which features track ageing, and
-# 2. build a transparent model that predicts **remaining useful life (RUL)** —
-#    cycles left before end-of-life — and holds up on cells it was not fitted to?
+# 2. build a transparent model that predicts **remaining useful life (RUL)**  - 
+#    cycles left before end-of-life  -  and holds up on cells it was not fitted to?
 #
 # **A trap to avoid up front:** in this dataset every cell reaches end-of-life at
 # almost the same cycle number (~1080), so `RUL ~= 1080 - Cycle_Index` and the
@@ -295,7 +295,7 @@ print(f"peak T  exact={peak:.3f}  FD(N=161)={Th_.max():.3f}  "
 #   charge/discharge cycle of one cell; features are summary statistics of that
 #   cycle. RUL is the number of cycles remaining until that cell's end-of-life.
 # * I did not run these tests. The raw voltage/current traces are not in this
-#   file — only the engineered per-cycle features — so any resistance or capacity
+#   file  -  only the engineered per-cycle features  -  so any resistance or capacity
 #   claim here is an *inference from timing features*, not a direct measurement.
 
 # %%
@@ -308,14 +308,14 @@ df.head()
 #
 # | column | meaning | unit | physical reading |
 # |---|---|---|---|
-# | `Cycle_Index` | cycle number for that cell | – | ageing clock |
-# | `Discharge Time (s)` | duration of the discharge phase | s | ↓ as usable capacity fades |
+# | `Cycle_Index` | cycle number for that cell | - | ageing clock |
+# | `Discharge Time (s)` | duration of the discharge phase | s | down as usable capacity fades |
 # | `Decrement 3.6-3.4V (s)` | time for terminal V to fall from 3.6 to 3.4 V | s | inversely related to internal resistance / polarisation |
 # | `Max. Voltage Dischar. (V)` | highest terminal V during discharge | V | drifts with resistance & relaxation |
-# | `Min. Voltage Charg. (V)` | lowest terminal V during charge | V | – |
+# | `Min. Voltage Charg. (V)` | lowest terminal V during charge | V | - |
 # | `Time at 4.15V (s)` | time held near the CV plateau | s | grows as CC capacity drops (more CV top-up) |
-# | `Time constant current (s)` | duration of the CC charge phase | s | ↓ as the cell hits the voltage limit sooner |
-# | `Charging time (s)` | total charge duration | s | – |
+# | `Time constant current (s)` | duration of the CC charge phase | s | down as the cell hits the voltage limit sooner |
+# | `Charging time (s)` | total charge duration | s | - |
 # | `RUL` | cycles remaining to end-of-life | cycles | **target** |
 #
 # The file concatenates several cells back to back. I split them where `RUL` jumps
@@ -336,13 +336,13 @@ print(counts.to_string())
 # resistance, electrolyte depletion). Predictions:
 #
 # * `Discharge Time` **decreases** roughly linearly-then-accelerating with cycle
-#   number — it is close to a direct capacity proxy at fixed load.
-# * `Time constant current` **decreases** — a higher-resistance, lower-capacity
+#   number  -  it is close to a direct capacity proxy at fixed load.
+# * `Time constant current` **decreases**  -  a higher-resistance, lower-capacity
 #   cell reaches the charge voltage limit sooner, so more of the charge moves into
 #   the constant-voltage phase (`Time at 4.15V` **increases**).
-# * `Decrement 3.6-3.4V` **decreases** — higher internal resistance and stronger
+# * `Decrement 3.6-3.4V` **decreases**  -  higher internal resistance and stronger
 #   concentration polarisation make the voltage sag through that band faster.
-# * RUL, being (end-of-life cycle − current cycle), must fall ~1 per cycle within
+# * RUL, being (end-of-life cycle - current cycle), must fall ~1 per cycle within
 #   a cell, so any feature that is monotonic in cycle number will correlate with
 #   it. The real test is **cross-cell generalisation**, not in-cell fit.
 
@@ -378,7 +378,7 @@ print(f"kept {mask.sum()} / {len(clean)} rows ({100*mask.mean():.1f}%)")
 clean = clean[mask].reset_index(drop=True)
 
 # %% [markdown]
-# ### B5. Characterisation — do the trends match the expectation?
+# ### B5. Characterisation  -  do the trends match the expectation?
 
 # %%
 # condition features only -- Cycle_Index excluded (see the trap note in B0)
@@ -405,9 +405,9 @@ print(corr.to_string())
 # Reading the trajectories against B3:
 #
 # * `Discharge Time`, `Time constant current`, `Decrement 3.6-3.4V` all **fall**
-#   with cycle number and are **positively** correlated with RUL — consistent with
+#   with cycle number and are **positively** correlated with RUL  -  consistent with
 #   capacity fade + impedance rise.
-# * `Time at 4.15V` **rises** with age (negative r with RUL) — the CV phase takes
+# * `Time at 4.15V` **rises** with age (negative r with RUL)  -  the CV phase takes
 #   over as the CC capacity shrinks, exactly as predicted.
 # * `Max. Voltage Dischar.` moves the way a rising-resistance cell should.
 #
@@ -417,11 +417,11 @@ print(corr.to_string())
 # ### B6. Transparent baseline model + parameter identification
 #
 # Model: **ordinary least squares**, RUL as a linear combination of standardised
-# features. No black box — I want to read the coefficients and check their signs
+# features. No black box  -  I want to read the coefficients and check their signs
 # against B3. I also fit a physics-informed 2-feature version (just the two
 # strongest capacity/impedance proxies) to see how much the extra features buy.
 #
-# **Validation split is by cell, not by row** — three whole cells held out. A
+# **Validation split is by cell, not by row**  -  three whole cells held out. A
 # row-wise split would leak, because consecutive cycles of one cell are almost
 # identical.
 
@@ -508,11 +508,11 @@ print(f"as fraction of a ~1100-cycle life: {mean_absolute_error(te['RUL'], pA)/1
 #   unseen cells with a mean error of order a few percent of total life, and the
 #   fitted coefficients have the signs the degradation physics demands.
 # * The full feature set does *worse* on held-out cells (MAE ~53 vs ~44 cycles)
-#   and some of its coefficients flip to physically wrong signs — classic
+#   and some of its coefficients flip to physically wrong signs  -  classic
 #   multicollinearity among features that are all monotonic in age. Prefer the
 #   2-feature model for anything safety-adjacent.
 # * The residuals grow near end-of-life, where fade accelerates and the linear
-#   model can't bend — a knee-detection or piecewise model is the right next step.
+#   model can't bend  -  a knee-detection or piecewise model is the right next step.
 #
 # ### B10. Assumptions and limits
 #
@@ -520,7 +520,7 @@ print(f"as fraction of a ~1100-cycle life: {mean_absolute_error(te['RUL'], pA)/1
 #   profile would shift every timing feature.
 # * "RUL" here is defined by the dataset's own end-of-life criterion, not a
 #   measured capacity threshold I can see.
-# * No temperature column — thermal history, which strongly drives ageing, is
+# * No temperature column  -  thermal history, which strongly drives ageing, is
 #   invisible here.
 # * Only ~14 cells; the held-out estimate has real variance. Treat the number as
 #   an order of magnitude, not a spec.
@@ -528,20 +528,20 @@ print(f"as fraction of a ~1100-cycle life: {mean_absolute_error(te['RUL'], pA)/1
 # ### Next datasets to fold into this investigation
 #
 # * A raw time-series set (e.g. LG 18650 HG2, or the Oxford Battery Degradation
-#   set) to actually identify an OCV–SOC curve and a Thevenin 1-RC equivalent
+#   set) to actually identify an OCV-SOC curve and a Thevenin 1-RC equivalent
 #   circuit, instead of inferring resistance from timing.
 # * A set with a temperature channel, to add the thermal term.
 
 # %% [markdown]
 # ---
-# # Part C — Method notes: battery thermal-runaway modelling
+# # Part C  -  Method notes: battery thermal-runaway modelling
 #
 # Reading notes tied to the Modelica work in my `vehicle-systems-engineering`
 # repo (project 07, `BatteryTR`). These are the ideas I'm implementing, kept here
 # so the notebook and the model tell the same story.
 #
-# **ARC tracing (accelerating rate calorimetry) method** — the approach in Virtual
-# Vehicle's open *BatterySafety* library (Groß & Golubkov, 14th Modelica
+# **ARC tracing (accelerating rate calorimetry) method**  -  the approach in Virtual
+# Vehicle's open *BatterySafety* library (Gross & Golubkov, 14th Modelica
 # Conference 2021, Modelica License 2.0; no public download, contact
 # `batterysafety@v2c2.at`). Instead of resolving decomposition chemistry, the
 # self-heating rate measured in an ARC test, $(dT/dt)_{ARC}(T)$, is stored as a
@@ -553,20 +553,20 @@ print(f"as fraction of a ~1100-cycle life: {mean_absolute_error(te['RUL'], pA)/1
 # temperature, (b) capped by a finite energy budget $E_{total}$ per node via a
 # progress variable $\xi \in [0,1]$, and (c) faded out as the "fuel" is consumed
 # through the $(1-\xi)^u$ factor. Propagation between cells is then just a thermal
-# network — conduction through the stack, convection to coolant, radiation — with
+# network  -  conduction through the stack, convection to coolant, radiation  -  with
 # no extra chemistry.
 #
 # **Why this is the right modelling level for a systems engineer:** it needs only
 # ARC data (widely measured), it runs fast enough for a full pack, and it answers
-# the design question directly — *how much inter-cell thermal isolation stops a
+# the design question directly  -  *how much inter-cell thermal isolation stops a
 # single-cell event from cascading?* My re-implementation reproduces the library's
-# published results: a single cell peaks near 810 °C with the ARC signature, a
+# published results: a single cell peaks near 810  deg C with the ARC signature, a
 # 12-cell module goes 12/12, an inter-cell barrier contains it to 1/12, and a
 # 3-module pack cascades 36/36.
 #
 # **Key references**
 #
-# * Groß, Golubkov et al., *An Open Modelica Library for Battery Thermal Runaway
+# * Gross, Golubkov et al., *An Open Modelica Library for Battery Thermal Runaway
 #   and its Propagation*, 14th Int. Modelica Conference, 2021.
 #   <https://ecp.ep.liu.se/index.php/modelica/article/download/198/443/405>
 # * ARC method background: Golubkov et al., *Thermal runaway of commercial
@@ -578,8 +578,8 @@ print(f"as fraction of a ~1100-cycle life: {mean_absolute_error(te['RUL'], pA)/1
 #
 # | date | change |
 # |---|---|
-# | 2026-09-03 | Notebook created. Part A (Biot/Fourier, transient schemes, 1-D conduction). Part B investigation 1: capacity fade / RUL on the CC0 Kaggle "Battery RUL" feature set — cell-wise validation, physics-signed coefficients, ~few-% life MAE. Part C method notes on ARC-tracing TR modelling. |
+# | 2026-09-03 | Notebook created. Part A (Biot/Fourier, transient schemes, 1-D conduction). Part B investigation 1: capacity fade / RUL on the CC0 Kaggle "Battery RUL" feature set  -  cell-wise validation, physics-signed coefficients, ~few-% life MAE. Part C method notes on ARC-tracing TR modelling. |
 #
-# **To do next:** add an OCV–SOC + Thevenin 1-RC identification on a raw
+# **To do next:** add an OCV-SOC + Thevenin 1-RC identification on a raw
 # time-series dataset; add a temperature-dependent ageing term; piecewise/knee
 # model for the end-of-life acceleration seen in B8.

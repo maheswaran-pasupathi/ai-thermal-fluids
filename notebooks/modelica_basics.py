@@ -11,17 +11,17 @@
 # ---
 
 # %% [markdown]
-# # Modelica basics — M1 of the system-modelling stream
+# # Modelica basics  -  M1 of the system-modelling stream
 #
 # Separate from the Kaggle engineering notebook. This one is about learning
 # **acausal, equation-based system modelling** with OpenModelica, starting from
 # the three canonical first / second-order systems every plant model is built from:
 #
-# 1. mechanical — mass–spring–damper
-# 2. electrical — RC network
-# 3. thermal — a lumped body with conduction to ambient
+# 1. mechanical  -  mass-spring-damper
+# 2. electrical  -  RC network
+# 3. thermal  -  a lumped body with conduction to ambient
 #
-# For each: write the Modelica, simulate it with `omc` (the compiler — no GUI),
+# For each: write the Modelica, simulate it with `omc` (the compiler  -  no GUI),
 # and check the result against the closed-form solution. Same discipline as the
 # CFD/heat-transfer work: a model earns trust by reproducing a case with a known
 # answer before it is used for anything new.
@@ -82,7 +82,7 @@ def run_modelica(model_name, mo_source, stop=None, step=None, interval=2000):
 
 
 # %% [markdown]
-# ## M1.1 Mass–spring–damper
+# ## M1.1 Mass-spring-damper
 #
 # $$ m\ddot x + c\dot x + kx = 0,\qquad x(0)=x_0,\ \dot x(0)=0 $$
 #
@@ -92,7 +92,7 @@ def run_modelica(model_name, mo_source, stop=None, step=None, interval=2000):
 #    \left(\cos\omega_d t + \frac{\zeta}{\sqrt{1-\zeta^2}}\sin\omega_d t\right),
 #    \quad \omega_n=\sqrt{k/m},\ \omega_d=\omega_n\sqrt{1-\zeta^2} $$
 #
-# In Modelica I write the *equations*, not a solved trajectory — `der(x)` and
+# In Modelica I write the *equations*, not a solved trajectory  -  `der(x)` and
 # `der(v)` and let the tool integrate.
 
 # %%
@@ -134,7 +134,7 @@ print(f"omega_n={wn:.3f} rad/s  zeta={zeta:.3f}  max abs error = "
       f"{np.max(np.abs(df['x'].values - x_exact)):.2e} m")
 
 # %% [markdown]
-# ## M1.2 RC network — step response
+# ## M1.2 RC network  -  step response
 #
 # Series R, C driven by a voltage step $V_s$ from rest:
 #
@@ -143,7 +143,7 @@ print(f"omega_n={wn:.3f} rad/s  zeta={zeta:.3f}  max abs error = "
 #    v_C(t) = V_s\left(1 - e^{-t/RC}\right) $$
 #
 # Here I use the Modelica Standard Library electrical components and *wire* them,
-# which is the acausal style — no ODE written by hand.
+# which is the acausal style  -  no ODE written by hand.
 
 # %%
 R, Cap, Vs = 1000.0, 1.0e-6, 5.0   # 1 kOhm, 1 uF -> tau = 1 ms
@@ -196,7 +196,7 @@ print(f"tau = {tau*1e3:.3f} ms   max abs error = "
 #           + \left(T_0 - T_\infty - \frac{\dot Q}{G}\right)e^{-t/\tau},
 #    \quad \tau = C_{th}/G $$
 #
-# This is the exact same equation as A2 in the engineering notebook — here it is
+# This is the exact same equation as A2 in the engineering notebook  -  here it is
 # assembled from MSL `HeatTransfer` components (`HeatCapacitor`,
 # `ThermalConductor`, `FixedTemperature`, `PrescribedHeatFlow`).
 
@@ -244,14 +244,14 @@ print(f"tau = {tau/60:.1f} min   steady rise = {Qdot/G:.2f} K   "
 # %% [markdown]
 # ## What M1 establishes
 #
-# * The `omc` + `.mos` → CSV → matplotlib workflow is reproducible from a script,
+# * The `omc` + `.mos` -> CSV -> matplotlib workflow is reproducible from a script,
 #   no GUI needed.
 # * All three models reproduce their closed-form solutions to solver tolerance.
-# * The acausal `connect(...)` style already appears in M1.2 / M1.3 — the same
+# * The acausal `connect(...)` style already appears in M1.2 / M1.3  -  the same
 #   pattern scales to the `BatteryTR` library (cells wired into modules wired into
 #   packs) without ever writing the assembled system equation by hand.
 #
-# **Next (M2):** thermal-fluid components — a pipe / control volume with mass and
+# **Next (M2):** thermal-fluid components  -  a pipe / control volume with mass and
 # energy balance, a pump/fan characteristic, a simple heat exchanger, then a small
-# coolant loop. Then M3: a battery electrical–thermal plant (OCV–SOC + 1-RC +
+# coolant loop. Then M3: a battery electrical-thermal plant (OCV-SOC + 1-RC +
 # self-heating), which is where this stream meets the Kaggle battery work.
