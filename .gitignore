@@ -22,3 +22,8 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# notebook working dirs
+notebooks/data/
+notebooks/mo_work/
+**/.ipynb_checkpoints/
