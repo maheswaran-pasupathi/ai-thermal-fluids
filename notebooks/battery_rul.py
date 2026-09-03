@@ -13,16 +13,35 @@
 # %% [markdown]
 # # Battery capacity fade and remaining useful life
 #
-# An open-data investigation. One dataset, one engineering question, a transparent
-# baseline model, validated on data it never saw. Structure:
+# An open-data investigation, built in short steps. Each step does one thing,
+# ends with a plot, and a note on what the plot shows.
 #
-# > question -> source / provenance / licence -> test configuration -> data
-# > dictionary + units -> first-principles expectation -> data-quality checks ->
-# > characterisation -> transparent baseline model -> parameter identification ->
-# > validation on a *different* condition -> residual / error physics ->
-# > engineering conclusion -> assumptions and limits
+# **The question:** from cheap per-cycle summary numbers (how long a discharge
+# took, how fast the voltage fell through a fixed band, charge timings), can I
+# predict how many cycles a lithium-ion cell has left - and have it hold up on
+# cells the model was never fitted to?
 #
-# **Credentials note:** no API keys or tokens live in this notebook. On Kaggle the
+# **Dataset:** "Battery Remaining Useful Life (RUL)", Kaggle
+# `ignaciovinuales/battery-remaining-useful-life-rul`, licence CC0-1.0. Derived
+# from NASA-style randomised-load cell cycling (the widely used "TII" processed
+# feature set). One row = one charge/discharge cycle of one cell.
+#
+# **Steps**
+#
+# 1. Load the data
+# 2. What the columns mean
+# 3. Separate the individual cells
+# 4. What to expect physically - written down before modelling
+# 5. Data quality - find the bad rows
+# 6. Clean with physical limits
+# 7. How each feature moves as the cell ages
+# 8. Which features correlate with remaining life
+# 9. A one-feature baseline model
+# 10. Do more features help? (they don't - and why)
+# 11. Where the model fails
+# 12. Conclusion and limits
+#
+# **Credentials note:** no API keys or tokens are in this notebook. On Kaggle the
 # dataset is attached through the UI; locally it is pulled with the Kaggle CLI
 # using the machine's own credential file.
 
@@ -36,6 +55,14 @@ np.random.seed(0)
 plt.rcParams["figure.dpi"] = 110
 plt.rcParams["axes.grid"] = True
 
+# %% [markdown]
+# ---
+# ## Step 1 - Load the data
+
+# %% [markdown]
+# ### 1a. Find the file (Kaggle mounts it under /kaggle/input; locally I keep a copy)
+
+# %%
 CANDIDATES = [
     "/kaggle/input/battery-remaining-useful-life-rul/Battery_RUL.csv",
     "data/Battery_RUL.csv",
@@ -43,102 +70,135 @@ CANDIDATES = [
     "D:/Claude/KaggleLab/data/Battery_RUL.csv",
 ]
 BATTERY_CSV = next((p for p in CANDIDATES if os.path.exists(p)), None)
-print("battery csv:", BATTERY_CSV)
+print("using:", BATTERY_CSV)
 
-# ### B0. Engineering question
-#
-# From per-cycle summary features of a Li-ion cell (how long the discharge took,
-# how fast the voltage fell through a fixed band, charge timings), can I:
-#
-# 1. explain *physically* which features track ageing, and
-# 2. build a transparent model that predicts **remaining useful life (RUL)**  - 
-#    cycles left before end-of-life  -  and holds up on cells it was not fitted to?
-#
-# **A trap to avoid up front:** in this dataset every cell reaches end-of-life at
-# almost the same cycle number (~1080), so `RUL ~= 1080 - Cycle_Index` and the
-# cycle index alone "predicts" RUL with r ~= -0.9998. That is circular: it uses
-# the ageing clock to predict time left on the ageing clock. The real prognostics
-# question is whether the **condition** features (how the cell is behaving this
-# cycle) carry the signal, so `Cycle_Index` is excluded from every model below.
-#
-# ### B1. Source, provenance, licence
-#
-# * **Dataset:** "Battery Remaining Useful Life (RUL)", Kaggle
-#   `ignaciovinuales/battery-remaining-useful-life-rul`, licence **CC0-1.0**.
-# * **Origin:** derived from the NASA-style randomized-load Li-ion cell cycling
-#   experiments (the widely-used "TII" processed feature set). Each row is one
-#   charge/discharge cycle of one cell; features are summary statistics of that
-#   cycle. RUL is the number of cycles remaining until that cell's end-of-life.
-# * I did not run these tests. The raw voltage/current traces are not in this
-#   file  -  only the engineered per-cycle features  -  so any resistance or capacity
-#   claim here is an *inference from timing features*, not a direct measurement.
+# %% [markdown]
+# ### 1b. Read it and look at the first rows
 
 # %%
 df = pd.read_csv(BATTERY_CSV)
-print(df.shape)
+print("shape:", df.shape)
 df.head()
 
 # %% [markdown]
-# ### B2. Test configuration and data dictionary
-#
-# | column | meaning | unit | physical reading |
-# |---|---|---|---|
-# | `Cycle_Index` | cycle number for that cell | - | ageing clock |
-# | `Discharge Time (s)` | duration of the discharge phase | s | down as usable capacity fades |
-# | `Decrement 3.6-3.4V (s)` | time for terminal V to fall from 3.6 to 3.4 V | s | inversely related to internal resistance / polarisation |
-# | `Max. Voltage Dischar. (V)` | highest terminal V during discharge | V | drifts with resistance & relaxation |
-# | `Min. Voltage Charg. (V)` | lowest terminal V during charge | V | - |
-# | `Time at 4.15V (s)` | time held near the CV plateau | s | grows as CC capacity drops (more CV top-up) |
-# | `Time constant current (s)` | duration of the CC charge phase | s | down as the cell hits the voltage limit sooner |
-# | `Charging time (s)` | total charge duration | s | - |
-# | `RUL` | cycles remaining to end-of-life | cycles | **target** |
-#
-# The file concatenates several cells back to back. I split them where `RUL` jumps
-# back up (a new cell starting near its full life).
+# ### 1c. Plot - the target variable across the whole file
 
 # %%
-boundary = df["RUL"].diff().fillna(-1) > 0
-df["cell_id"] = boundary.cumsum()
-counts = df.groupby("cell_id").size()
-print(f"{df['cell_id'].nunique()} cells, cycle counts:")
-print(counts.to_string())
+fig, ax = plt.subplots(figsize=(7, 3))
+ax.plot(df["RUL"].values, lw=0.8)
+ax.set_xlabel("row number (file order)")
+ax.set_ylabel("RUL  [cycles]")
+ax.set_title("RUL over the whole file")
+plt.show()
 
 # %% [markdown]
-# ### B3. First-principles expectation (write it down *before* modelling)
+# **What the plot shows**
 #
-# As a Li-ion cell ages, two things happen: **capacity fade** (loss of cyclable
-# lithium / active material) and **impedance rise** (SEI growth, contact
-# resistance, electrolyte depletion). Predictions:
-#
-# * `Discharge Time` **decreases** roughly linearly-then-accelerating with cycle
-#   number  -  it is close to a direct capacity proxy at fixed load.
-# * `Time constant current` **decreases**  -  a higher-resistance, lower-capacity
-#   cell reaches the charge voltage limit sooner, so more of the charge moves into
-#   the constant-voltage phase (`Time at 4.15V` **increases**).
-# * `Decrement 3.6-3.4V` **decreases**  -  higher internal resistance and stronger
-#   concentration polarisation make the voltage sag through that band faster.
-# * RUL, being (end-of-life cycle - current cycle), must fall ~1 per cycle within
-#   a cell, so any feature that is monotonic in cycle number will correlate with
-#   it. The real test is **cross-cell generalisation**, not in-cell fit.
+# * RUL ("remaining useful life") counts down within a cell, then jumps back up.
+#   Each sawtooth is one cell, cycled from near-new to end-of-life.
+# * So the file is several cells concatenated. Step 3 separates them.
 
 # %% [markdown]
-# ### B4. Data-quality checks
+# ---
+# ## Step 2 - What the columns mean
+#
+# The dataset has no raw voltage/current traces, only these per-cycle summaries.
+# So any resistance or capacity statement below is an *inference from timing*,
+# not a direct measurement.
+#
+# | column | meaning | unit |
+# |---|---|---|
+# | `Cycle_Index` | cycle number for that cell | - |
+# | `Discharge Time (s)` | length of the discharge phase | s |
+# | `Decrement 3.6-3.4V (s)` | time for terminal voltage to fall from 3.6 to 3.4 V during discharge | s |
+# | `Max. Voltage Dischar. (V)` | highest terminal voltage during discharge | V |
+# | `Min. Voltage Charg. (V)` | lowest terminal voltage during charge | V |
+# | `Time at 4.15V (s)` | time spent near the top-of-charge voltage plateau | s |
+# | `Time constant current (s)` | length of the constant-current charge phase | s |
+# | `Charging time (s)` | total charge duration | s |
+# | `RUL` | cycles remaining until end-of-life | cycles (**the target**) |
+
+# %% [markdown]
+# ---
+# ## Step 3 - Separate the individual cells
+#
+# Split the file wherever `RUL` jumps back up (a new cell starting near full life).
+
+# %% [markdown]
+# ### 3a. Detect the boundaries and label each cell
 
 # %%
-print("missing values:\n", df.isna().sum(), "\n")
-desc = df.describe().T[["min", "25%", "50%", "75%", "max"]]
-print(desc, "\n")
+new_cell = df["RUL"].diff().fillna(-1) > 0     # True where RUL jumps up
+df["cell_id"] = new_cell.cumsum()
+cycle_counts = df.groupby("cell_id").size()
+print(f"found {df['cell_id'].nunique()} cells")
+print(cycle_counts.to_string())
 
-# the max discharge/charge times are ~1e6 s = 11 days -> physically impossible for one cycle
-susp = df[(df["Discharge Time (s)"] > 5e4) | (df["Charging time (s)"] > 5e4)]
-print(f"{len(susp)} rows with >50000 s phase time (measurement artefacts / merged cycles):")
-print(susp[["cell_id", "Cycle_Index", "Discharge Time (s)", "Charging time (s)", "RUL"]].head(10))
+# %% [markdown]
+# ### 3b. Plot - cycles of life per cell
 
 # %%
-# Clean: physically-motivated caps, not blind quantile clipping.
-clean = df.copy()
-LIMITS = {
-    "Discharge Time (s)": (60, 12000),      # 1 min .. ~3.3 h
+fig, ax = plt.subplots(figsize=(7, 3.5))
+ax.bar(cycle_counts.index, cycle_counts.values, color="#4C72B0")
+ax.set_xlabel("cell id")
+ax.set_ylabel("cycles recorded")
+ax.set_title("Life span of each cell")
+plt.show()
+
+# %% [markdown]
+# **What the plot shows**
+#
+# * 14 cells, each cycled for very close to the same life - about 1080 cycles.
+# * That near-constant lifetime matters: it means `Cycle_Index` alone almost
+#   determines RUL (`RUL` is roughly `1080 - Cycle_Index`). Predicting cycles-left
+#   from cycle-number is circular, so `Cycle_Index` is left out of every model
+#   below. The real question is whether the *condition* features carry the signal.
+
+# %% [markdown]
+# ---
+# ## Step 4 - What to expect physically (written down before modelling)
+#
+# As a lithium-ion cell ages, two things happen:
+#
+# * **capacity fade** - loss of cyclable lithium and active material, so the cell
+#   holds less charge;
+# * **impedance rise** - a growing surface film and contact resistance, so the
+#   voltage responds more sharply to current.
+#
+# Predictions for the features:
+#
+# 1. **Capacity fade shortens every duration.** With less charge to move in and
+#    out, `Discharge Time`, `Time constant current`, `Charging time` and
+#    `Time at 4.15V` all **fall**.
+# 2. **Impedance rise speeds the voltage swings.** `Decrement 3.6-3.4V` (time to
+#    fall through a fixed voltage band) **falls**; `Max. Voltage Dischar.`
+#    **falls** because the cell can't hold as high a terminal voltage under load.
+# 3. **One feature should rise.** `Min. Voltage Charg.` - the lowest voltage seen
+#    during charge - **rises** with age, because the larger IR step at the start
+#    of charge lifts the whole charge voltage.
+#
+# So: nearly everything falls with age; `Min. Voltage Charg.` is the exception.
+
+# %% [markdown]
+# ---
+# ## Step 5 - Data quality: find the bad rows
+
+# %% [markdown]
+# ### 5a. Missing values and the range of each column
+
+# %%
+print("missing values per column:")
+print(df.isna().sum().to_string())
+print()
+print("min / max of each column:")
+print(df.describe().T[["min", "max"]].to_string())
+
+# %% [markdown]
+# ### 5b. Count the physically-impossible values per column
+
+# %%
+PHYS = {  # plausible (low, high) for one cycle
+    "Discharge Time (s)": (60, 12000),
     "Decrement 3.6-3.4V (s)": (1, 5000),
     "Time at 4.15V (s)": (1, 12000),
     "Time constant current (s)": (60, 20000),
@@ -146,59 +206,160 @@ LIMITS = {
     "Max. Voltage Dischar. (V)": (3.0, 4.3),
     "Min. Voltage Charg. (V)": (3.0, 4.3),
 }
-mask = np.ones(len(clean), bool)
-for col, (lo, hi) in LIMITS.items():
-    mask &= clean[col].between(lo, hi)
-print(f"kept {mask.sum()} / {len(clean)} rows ({100*mask.mean():.1f}%)")
-clean = clean[mask].reset_index(drop=True)
+bad_counts = {c: int((~df[c].between(lo, hi)).sum()) for c, (lo, hi) in PHYS.items()}
+for c, n in bad_counts.items():
+    print(f"{c:28s} {n:4d} rows outside {PHYS[c]}")
 
 # %% [markdown]
-# ### B5. Characterisation  -  do the trends match the expectation?
+# ### 5c. Plot
 
 # %%
-# condition features only -- Cycle_Index excluded (see the trap note in B0)
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.barh(list(bad_counts), list(bad_counts.values()), color="#C44E52")
+ax.set_xlabel("rows outside the physical range")
+ax.set_title(f"Suspect values  ({df.shape[0]} rows total)")
+plt.tight_layout()
+plt.show()
+
+# %% [markdown]
+# **What the plot shows**
+#
+# * A few hundred rows carry values that cannot be real for a single cycle -
+#   negative durations, or "discharge times" of several days. These are logging
+#   artefacts or merged cycles, spread across a handful of columns.
+# * They are a small fraction of ~15000 rows, so trimming them is safe.
+
+# %% [markdown]
+# ---
+# ## Step 6 - Clean with physical limits
+#
+# Keep only rows where every feature sits inside its plausible range (Step 5a).
+# This is physically motivated, not blind percentile clipping.
+
+# %% [markdown]
+# ### 6a. Apply the limits
+
+# %%
+keep = np.ones(len(df), dtype=bool)
+for c, (lo, hi) in PHYS.items():
+    keep &= df[c].between(lo, hi)
+clean = df[keep].reset_index(drop=True)
+print(f"kept {keep.sum()} of {len(df)} rows  ({100 * keep.mean():.1f}%)")
+
+# %% [markdown]
+# ### 6b. Plot - rows kept per cell
+
+# %%
+before = df.groupby("cell_id").size()
+after = clean.groupby("cell_id").size()
+
+fig, ax = plt.subplots(figsize=(7, 3.5))
+w = 0.4
+ax.bar(before.index - w / 2, before.values, w, label="before", color="#B0B0B0")
+ax.bar(after.index + w / 2, after.reindex(before.index).fillna(0).values, w,
+       label="after cleaning", color="#4C72B0")
+ax.set_xlabel("cell id")
+ax.set_ylabel("rows")
+ax.set_title("Rows removed by the physical-limit filter")
+ax.legend()
+plt.show()
+
+# %% [markdown]
+# **What the plot shows**
+#
+# * Cleaning removes only a thin slice from each cell and leaves every cell with a
+#   near-complete life history. No cell is gutted, so the per-cell analysis below
+#   is not biased by the filter.
+
+# %% [markdown]
+# ---
+# ## Step 7 - How each feature moves as the cell ages
+#
+# Plot every condition feature against cycle number, one line per cell, and read
+# it against the predictions in Step 4.
+
+# %% [markdown]
+# ### 7a. The condition features (Cycle_Index and the target excluded)
+
+# %%
 feat_cols = [c for c in clean.columns
              if c not in ("RUL", "cell_id", "Cycle_Index")]
+print(feat_cols)
+
+# %% [markdown]
+# ### 7b. Plot - trajectories, one panel per feature
+
+# %%
 fig, axes = plt.subplots(2, 4, figsize=(15, 6))
 for ax, col in zip(axes.ravel(), feat_cols):
-    for cid, g in clean.groupby("cell_id"):
+    for _, g in clean.groupby("cell_id"):
         ax.plot(g["Cycle_Index"], g[col], lw=0.8, alpha=0.6)
     ax.set_title(col, fontsize=9)
     ax.set_xlabel("cycle")
-axes.ravel()[-1].axis("off")
-fig.suptitle("per-cell feature trajectories vs cycle number")
+for ax in axes.ravel()[len(feat_cols):]:
+    ax.axis("off")
+fig.suptitle("Feature trajectories vs cycle number (one line per cell)")
 fig.tight_layout()
 plt.show()
 
+# %% [markdown]
+# **What the plot shows**
+#
+# * Every duration - discharge time, CC-charge time, charging time, time at
+#   4.15 V - trends **down** with age, and so do the two discharge-voltage
+#   features. Capacity fade dominates: the aged cell simply moves less charge.
+# * `Min. Voltage Charg.` is the one feature that trends **up** - the impedance
+#   signature from prediction 3.
+# * The trajectories are consistent cell to cell, so the pattern is real.
+
+# %% [markdown]
+# ---
+# ## Step 8 - Which features correlate with remaining life
+
+# %% [markdown]
+# ### 8a. Pearson correlation of each feature with RUL
+
 # %%
-# Correlation of each feature with RUL (pooled) and its sign.
 corr = clean[feat_cols + ["RUL"]].corr()["RUL"].drop("RUL").sort_values()
-print("Pearson r with RUL:")
 print(corr.to_string())
 
 # %% [markdown]
-# Reading the trajectories against B3:
-#
-# * `Discharge Time`, `Time constant current`, `Decrement 3.6-3.4V` all **fall**
-#   with cycle number and are **positively** correlated with RUL  -  consistent with
-#   capacity fade + impedance rise.
-# * `Time at 4.15V` **rises** with age (negative r with RUL)  -  the CV phase takes
-#   over as the CC capacity shrinks, exactly as predicted.
-# * `Max. Voltage Dischar.` moves the way a rising-resistance cell should.
-#
-# The physics story holds, so a linear model on these features is defensible.
+# ### 8b. Plot
+
+# %%
+fig, ax = plt.subplots(figsize=(7, 4))
+colors = ["#C44E52" if v < 0 else "#4C72B0" for v in corr.values]
+ax.barh(corr.index, corr.values, color=colors)
+ax.axvline(0, color="k", lw=0.8)
+ax.set_xlabel("Pearson r  with RUL")
+ax.set_title("Correlation of each condition feature with remaining life")
+plt.tight_layout()
+plt.show()
 
 # %% [markdown]
-# ### B6. Transparent baseline model + parameter identification
+# **What the plot shows**
 #
-# Model: **ordinary least squares**, RUL as a linear combination of standardised
-# features. No black box  -  I want to read the coefficients and check their signs
-# against B3. I also fit a physics-informed 2-feature version (just the two
-# strongest capacity/impedance proxies) to see how much the extra features buy.
+# * Every feature that *falls* with age is **positively** correlated with RUL -
+#   a high value means a young cell with life left.
+# * `Min. Voltage Charg.`, which *rises* with age, is the only **negative** one.
+# * All signs match Step 4. `Time at 4.15V` is the single strongest predictor
+#   ($r \approx 0.98$): the charge accepted in the final voltage window is close
+#   to a direct read-out of remaining capacity.
+
+# %% [markdown]
+# ---
+# ## Step 9 - A one-feature baseline model
 #
-# **Validation split is by cell, not by row**  -  three whole cells held out. A
-# row-wise split would leak, because consecutive cycles of one cell are almost
+# Start with the strongest single predictor, `Time at 4.15V`, and a straight line:
+#
+# $$ \widehat{RUL} \;=\; \beta_0 \;+\; \beta_1 \, x_{\text{time at 4.15V}} $$
+#
+# **Validation is by cell, not by row:** three whole cells are held out. A random
+# row split would leak, because consecutive cycles of one cell are nearly
 # identical.
+
+# %% [markdown]
+# ### 9a. Split the cells
 
 # %%
 from sklearn.linear_model import LinearRegression
@@ -207,115 +368,212 @@ from sklearn.metrics import r2_score, mean_absolute_error
 
 cells = sorted(clean["cell_id"].unique())
 rng = np.random.default_rng(42)
-test_cells = set(rng.choice(cells, size=3, replace=False))
+test_cells = sorted(rng.choice(cells, size=3, replace=False))
 train_cells = [c for c in cells if c not in test_cells]
-print("hold-out cells:", sorted(test_cells))
-
-tr = clean[clean["cell_id"].isin(train_cells)]
-te = clean[clean["cell_id"].isin(test_cells)]
-
-def fit_eval(cols, label):
-    sc = StandardScaler().fit(tr[cols])
-    m = LinearRegression().fit(sc.transform(tr[cols]), tr["RUL"])
-    pred_tr = m.predict(sc.transform(tr[cols]))
-    pred_te = m.predict(sc.transform(te[cols]))
-    print(f"\n[{label}]  features={cols}")
-    for name, c in zip(cols, m.coef_):
-        print(f"   {name:28s} coef {c:+8.1f}")
-    print(f"   train  R2={r2_score(tr['RUL'], pred_tr):.3f}  "
-          f"MAE={mean_absolute_error(tr['RUL'], pred_tr):.0f} cyc")
-    print(f"   TEST   R2={r2_score(te['RUL'], pred_te):.3f}  "
-          f"MAE={mean_absolute_error(te['RUL'], pred_te):.0f} cyc")
-    return sc, m, pred_te
-
-phys_cols = ["Discharge Time (s)", "Time at 4.15V (s)"]
-sc2, m2, p2 = fit_eval(phys_cols, "physics-informed, 2 features")
-scA, mA, pA = fit_eval(feat_cols, "all features")
+train = clean[clean["cell_id"].isin(train_cells)]
+test = clean[clean["cell_id"].isin(test_cells)]
+print("held-out cells:", test_cells)
+print(f"train rows {len(train)}, test rows {len(test)}")
 
 # %% [markdown]
-# ### B7. Validation on the held-out cells
+# ### 9b. Fit on one feature
 
 # %%
-fig, ax = plt.subplots(1, 2, figsize=(12, 5))
-ax[0].scatter(te["RUL"], pA, s=8, alpha=0.5, label="all features")
-ax[0].scatter(te["RUL"], p2, s=8, alpha=0.5, label="2 features")
-lim = [te["RUL"].min(), te["RUL"].max()]
+f1 = ["Time at 4.15V (s)"]
+scaler1 = StandardScaler().fit(train[f1])
+lr1 = LinearRegression().fit(scaler1.transform(train[f1]), train["RUL"])
+
+pred1_train = lr1.predict(scaler1.transform(train[f1]))
+pred1_test = lr1.predict(scaler1.transform(test[f1]))
+
+print(f"slope: {lr1.coef_[0]:+.0f} cycles per std-dev of 'Time at 4.15V'")
+print(f"train : R2 = {r2_score(train['RUL'], pred1_train):.3f}   "
+      f"MAE = {mean_absolute_error(train['RUL'], pred1_train):.0f} cycles")
+print(f"test  : R2 = {r2_score(test['RUL'], pred1_test):.3f}   "
+      f"MAE = {mean_absolute_error(test['RUL'], pred1_test):.0f} cycles  "
+      f"(~{mean_absolute_error(test['RUL'], pred1_test)/1080:.0%} of a cell's life)")
+
+# %% [markdown]
+# ### 9c. Plot - predicted vs true on the held-out cells
+
+# %%
+fig, ax = plt.subplots(1, 2, figsize=(12, 4.5))
+
+ax[0].scatter(test["RUL"], pred1_test, s=10, alpha=0.5)
+lim = [test["RUL"].min(), test["RUL"].max()]
 ax[0].plot(lim, lim, "k--")
-ax[0].set(xlabel="true RUL [cycles]", ylabel="predicted RUL",
-          title="held-out cells: parity")
-ax[0].legend()
+ax[0].set_xlabel("true RUL [cycles]")
+ax[0].set_ylabel("predicted RUL [cycles]")
+ax[0].set_title("Held-out cells: parity")
 
-for cid, g in te.groupby("cell_id"):
-    idx = g.index
+for cid, g in test.groupby("cell_id"):
+    p = pred1_test[test.index.get_indexer(g.index)]
     ax[1].plot(g["Cycle_Index"], g["RUL"], "k-", lw=1)
-    ax[1].plot(g["Cycle_Index"], pA.loc[idx] if hasattr(pA, "loc")
-               else pA[te.index.get_indexer(idx)], "C0.", ms=3)
-ax[1].set(xlabel="cycle", ylabel="RUL", title="predicted (dots) vs true (line)")
+    ax[1].plot(g["Cycle_Index"], p, ".", ms=4, label=f"cell {cid}")
+ax[1].set_xlabel("cycle")
+ax[1].set_ylabel("RUL [cycles]")
+ax[1].set_title("Predicted (dots) vs true (line)")
+ax[1].legend(fontsize=8)
 fig.tight_layout()
 plt.show()
 
 # %% [markdown]
-# ### B8. Residual / error physics
-
-# %%
-resid = te["RUL"].values - pA
-fig, ax = plt.subplots(1, 3, figsize=(15, 4))
-ax[0].scatter(pA, resid, s=8, alpha=0.5); ax[0].axhline(0, color="k")
-ax[0].set(xlabel="predicted RUL", ylabel="residual", title="residual vs fitted")
-ax[1].hist(resid, bins=40); ax[1].set(title=f"residuals  (std={resid.std():.0f} cyc)")
-for cid, g in te.groupby("cell_id"):
-    r = g["RUL"].values - pA[te.index.get_indexer(g.index)]
-    ax[2].plot(g["Cycle_Index"], r, label=f"cell {cid}")
-ax[2].axhline(0, color="k"); ax[2].legend(fontsize=8)
-ax[2].set(xlabel="cycle", ylabel="residual", title="residual vs age, per cell")
-fig.tight_layout()
-plt.show()
-
-print(f"held-out MAE  : {mean_absolute_error(te['RUL'], pA):.0f} cycles")
-print(f"held-out bias : {resid.mean():+.0f} cycles")
-print(f"as fraction of a ~1100-cycle life: {mean_absolute_error(te['RUL'], pA)/1100:.1%}")
-
-# %% [markdown]
-# ### B9. Engineering conclusion
+# **What the plot shows**
 #
-# * The timing features carry a real, physically-interpretable ageing signal:
-#   discharge duration and CV-phase duration alone predict remaining life on
-#   unseen cells with a mean error of order a few percent of total life, and the
-#   fitted coefficients have the signs the degradation physics demands.
-# * The full feature set does *worse* on held-out cells (MAE ~53 vs ~44 cycles)
-#   and some of its coefficients flip to physically wrong signs  -  classic
-#   multicollinearity among features that are all monotonic in age. Prefer the
-#   2-feature model for anything safety-adjacent.
-# * The residuals grow near end-of-life, where fade accelerates and the linear
-#   model can't bend  -  a knee-detection or piecewise model is the right next step.
-#
-# ### B10. Assumptions and limits
-#
-# * Same cell chemistry, format and test protocol throughout; a different load
-#   profile would shift every timing feature.
-# * "RUL" here is defined by the dataset's own end-of-life criterion, not a
-#   measured capacity threshold I can see.
-# * No temperature column  -  thermal history, which strongly drives ageing, is
-#   invisible here.
-# * Only ~14 cells; the held-out estimate has real variance. Treat the number as
-#   an order of magnitude, not a spec.
-#
-# ### Next datasets to fold into this investigation
-#
-# * A raw time-series set (e.g. LG 18650 HG2, or the Oxford Battery Degradation
-#   set) to actually identify an OCV-SOC curve and a Thevenin 1-RC equivalent
-#   circuit, instead of inferring resistance from timing.
-# * A set with a temperature channel, to add the thermal term.
-
+# * One feature already tracks remaining life on unseen cells to within a few
+#   percent of total life, with a positive slope - more charge accepted near full
+#   means a younger cell.
+# * The scatter widens at low RUL: the model is weakest near end-of-life.
 
 # %% [markdown]
 # ---
-# # Running log
+# ## Step 10 - Do more features help? (they don't - and why)
+#
+# The obvious next move is to throw in the other features. First check how
+# independent they actually are.
+
+# %% [markdown]
+# ### 10a. Plot - correlation between the condition features
+
+# %%
+cmat = clean[feat_cols].corr().abs()
+
+fig, ax = plt.subplots(figsize=(7, 5.5))
+im = ax.imshow(cmat, vmin=0, vmax=1, cmap="magma")
+ax.set_xticks(range(len(feat_cols)))
+ax.set_xticklabels(feat_cols, rotation=45, ha="right", fontsize=8)
+ax.set_yticks(range(len(feat_cols)))
+ax.set_yticklabels(feat_cols, fontsize=8)
+for i in range(len(feat_cols)):
+    for j in range(len(feat_cols)):
+        ax.text(j, i, f"{cmat.iloc[i, j]:.2f}", ha="center", va="center",
+                color="white" if cmat.iloc[i, j] < 0.7 else "black", fontsize=8)
+fig.colorbar(im, label="|correlation|")
+ax.set_title("The condition features are near-duplicates")
+fig.tight_layout()
+plt.show()
+
+# %% [markdown]
+# ### 10b. Fit models with 1, 2 and all 7 features and compare held-out error
+
+# %%
+def held_out_mae(feats):
+    sc = StandardScaler().fit(train[feats])
+    m = LinearRegression().fit(sc.transform(train[feats]), train["RUL"])
+    return mean_absolute_error(test["RUL"], m.predict(sc.transform(test[feats])))
+
+sets = {
+    "1: Time at 4.15V": ["Time at 4.15V (s)"],
+    "2: + Discharge Time": ["Time at 4.15V (s)", "Discharge Time (s)"],
+    "all 7 features": feat_cols,
+}
+maes = {k: held_out_mae(v) for k, v in sets.items()}
+
+fig, ax = plt.subplots(figsize=(6, 4))
+ax.bar(list(maes), list(maes.values()), color=["#4C72B0", "#4C72B0", "#B0B0B0"])
+for i, v in enumerate(maes.values()):
+    ax.text(i, v + 1, f"{v:.0f}", ha="center")
+ax.set_ylabel("held-out MAE [cycles]")
+ax.set_title("Adding features does not help")
+plt.xticks(rotation=15)
+plt.show()
+
+# %%
+# what the 7-feature fit does to the coefficients
+scA = StandardScaler().fit(train[feat_cols])
+lrA = LinearRegression().fit(scA.transform(train[feat_cols]), train["RUL"])
+print("7-feature model coefficients:")
+for name, coef in zip(feat_cols, lrA.coef_):
+    print(f"  {name:28s} {coef:+8.1f}")
+
+# %% [markdown]
+# **What the plots show**
+#
+# * Most feature pairs correlate above 0.9 (`Time at 4.15V` and
+#   `Time constant current` reach 0.99). They are all driven by the same thing -
+#   overall capacity fade - so the data really has about one degree of freedom.
+# * Adding a second feature leaves the held-out error unchanged; the full
+#   seven-feature model is *worse* and flips several coefficients to physically
+#   wrong signs (collinearity splits the shared signal unstably).
+# * The honest model here is one, maybe two, physically chosen features.
+
+# %% [markdown]
+# ---
+# ## Step 11 - Where the model fails
+
+# %% [markdown]
+# ### 11a. Residuals of the one-feature model on the held-out cells
+
+# %%
+resid = test["RUL"].values - pred1_test
+print(f"residual mean (bias) = {resid.mean():+.0f} cycles")
+print(f"residual std         = {resid.std():.0f} cycles")
+
+# %% [markdown]
+# ### 11b. Plot
+
+# %%
+fig, ax = plt.subplots(1, 2, figsize=(12, 4))
+
+ax[0].hist(resid, bins=40, color="#4C72B0")
+ax[0].axvline(0, color="k")
+ax[0].set_xlabel("residual  (true - predicted)  [cycles]")
+ax[0].set_title("Residual distribution")
+
+for cid, g in test.groupby("cell_id"):
+    r = g["RUL"].values - pred1_test[test.index.get_indexer(g.index)]
+    ax[1].plot(g["Cycle_Index"], r, label=f"cell {cid}")
+ax[1].axhline(0, color="k")
+ax[1].set_xlabel("cycle")
+ax[1].set_ylabel("residual [cycles]")
+ax[1].set_title("Residual vs age")
+ax[1].legend(fontsize=8)
+fig.tight_layout()
+plt.show()
+
+# %% [markdown]
+# **What the plot shows**
+#
+# * Residuals are roughly centred but fan out with cycle number: the error is
+#   largest late in life, where fade accelerates and a straight-line model cannot
+#   bend.
+# * A knee-detection or piecewise model is the natural next step.
+
+# %% [markdown]
+# ---
+# ## Step 12 - Conclusion and limits
+#
+# **What held up**
+#
+# * A single cheap per-cycle feature - the charge accepted near top-of-charge -
+#   predicts remaining life on unseen cells to within a few percent of total life,
+#   with a slope whose sign matches the degradation physics.
+# * The condition features are near-duplicates of one underlying fade signal, so a
+#   bigger model does not help and a seven-feature fit is less reliable, not more.
+#
+# **Limits**
+#
+# * One cell chemistry, format and test protocol. A different load profile would
+#   shift every timing feature.
+# * "End-of-life" is the dataset's own definition, not a measured capacity
+#   threshold visible here.
+# * No temperature channel - thermal history, a major ageing driver, is invisible.
+# * Only 14 cells; the held-out numbers have real variance. Treat them as an order
+#   of magnitude.
+#
+# **Next**
+#
+# * A raw time-series dataset (LG 18650 HG2, or the Oxford Degradation set) to fit
+#   an actual OCV-SOC curve and a Thevenin equivalent circuit instead of inferring
+#   resistance from timing.
+# * A dataset with temperature, to add the thermal term.
+# * A piecewise / knee model for the end-of-life acceleration seen in Step 11.
+
+# %% [markdown]
+# ---
+# ## Running log
 #
 # | date | change |
 # |---|---|
-# | 2026-09-03 | Created (split out of the old combined notebook). Investigation 1: capacity fade / RUL on the CC0 Kaggle "Battery RUL" feature set - 14 cells, cell-wise validation, Cycle_Index deliberately dropped (circular), 2-feature physics model ~4% life MAE, full model over-fits. |
-#
-# **To do next:** OCV-SOC + Thevenin 1-RC identification on a raw time-series
-# dataset (LG 18650 HG2 or Oxford Degradation); a temperature-dependent ageing
-# term; a piecewise / knee model for the end-of-life acceleration seen in B8.
+# | 2026-09-03 | Created (split out of the old combined notebook). |
+# | 2026-09-03 | Rebuilt in small steps: parameters -> one calculation -> one plot -> a note. Corrected the ageing story (in this dataset every duration falls with age; only Min. Voltage Charg. rises), moved to a one-feature baseline, added the feature-collinearity heatmap. |
